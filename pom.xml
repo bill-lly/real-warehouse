@@ -13,6 +13,7 @@
         <module>warehouse-common</module>
         <module>robot-warehouse</module>
         <module>iot-warehouse</module>
+        <module>ics-warehouse</module>
     </modules>
 
     <properties>

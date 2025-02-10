@@ -21,7 +21,7 @@ public class EventTaskTypeLookupFunction
 
   private static final Logger LOG = LoggerFactory.getLogger(EventTaskTypeLookupFunction.class);
   private final static String sql = "select code, is_create_ticket from yew.event_task_type where is_enabled  = 1 and execution_layer = 'REMOTE_MAINTENANCE' and code = ?";
-  private LookupProcessor<BaseEntity> lookupProcessor;
+  private final LookupProcessor<BaseEntity> lookupProcessor;
 
   public EventTaskTypeLookupFunction(Properties properties) {
     String jdbcUrl = properties.getProperty("yew.jdbc.url");

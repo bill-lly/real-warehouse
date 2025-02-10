@@ -2,7 +2,7 @@ package com.gs.cloud.warehouse.robot.source;
 
 import com.gs.cloud.warehouse.entity.FactEntity;
 import org.apache.flink.connector.kafka.source.KafkaSource;
-import util.KafkaSourceUtils;
+import com.gs.cloud.warehouse.util.KafkaSourceUtils;
 
 import java.util.Properties;
 

@@ -31,7 +31,7 @@ public class RobotStateMapping extends BaseEntity {
   private String udeskIcsPromotion;
   private String udeskProjectProperty;
 
-  private static long t2999;
+  private static final long t2999;
   static {
     Calendar t = Calendar.getInstance();
     t.set(2999, Calendar.DECEMBER, 31, 15, 59, 59);

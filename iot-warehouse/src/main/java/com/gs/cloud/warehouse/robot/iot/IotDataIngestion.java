@@ -4,6 +4,7 @@ import com.gs.cloud.warehouse.config.PropertiesHelper;
 import com.gs.cloud.warehouse.robot.iot.entity.IotEntity;
 import com.gs.cloud.warehouse.robot.iot.entity.RccPropertyReport;
 import com.gs.cloud.warehouse.robot.iot.process.RccPropertyReportProcessor;
+import org.apache.commons.lang3.time.DateUtils;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.common.functions.FilterFunction;
 import org.apache.flink.api.common.functions.MapFunction;
@@ -16,8 +17,11 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.JsonNode;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-import util.KafkaSourceUtils;
+import com.gs.cloud.warehouse.util.KafkaSourceUtils;
 
+import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.util.Date;
 import java.util.Properties;
 
 public class IotDataIngestion {
@@ -41,6 +45,7 @@ public class IotDataIngestion {
     DataStream<IotEntity> dataStream = env.fromSource(kafkaSource, WatermarkStrategy.noWatermarks(), "business data")
         .map(new MapFunction<String, IotEntity>() {
           private final ObjectMapper objectMapper = new ObjectMapper();
+          private final SimpleDateFormat df_yyyyMMdd = new SimpleDateFormat("yyyyMMdd");
           @Override
           public IotEntity map(String value) throws Exception {
             JsonNode jsonNode = objectMapper.readTree(value);
@@ -50,9 +55,16 @@ public class IotDataIngestion {
             iotEntity.setVersion(jsonNode.get("version").asText());
             iotEntity.setNamespace(jsonNode.get("namespace").asText());
             iotEntity.setObjectName(jsonNode.get("objectName").asText());
-            iotEntity.setCldUnixTimestamp(jsonNode.get("timestamp").asText());
+            String cldUnixTimestamp = jsonNode.get("timestamp").asText();
+            iotEntity.setCldUnixTimestamp(cldUnixTimestamp);
             iotEntity.setMethod(jsonNode.get("method").asText());
             iotEntity.setData(value);
+            iotEntity.setPt(
+                df_yyyyMMdd.format(
+                    DateUtils.addHours(
+                        Date.from(
+                            Instant.ofEpochMilli(
+                                Long.parseLong(cldUnixTimestamp))), 8)));
             return iotEntity;
           }
         })
@@ -62,7 +74,7 @@ public class IotDataIngestion {
     DataStream<RccPropertyReport> main = rccPropertyReportProcessor.process(dataStream);
     main.sinkTo(rccPropertyReportProcessor.getKafkaSink());
     if ("prod".equals(properties.getProperty("env"))) {
-      rccPropertyReportProcessor.sinkHudi(main);
+      rccPropertyReportProcessor.sinkHudi(dataStream);
     }
     env.execute();
   }

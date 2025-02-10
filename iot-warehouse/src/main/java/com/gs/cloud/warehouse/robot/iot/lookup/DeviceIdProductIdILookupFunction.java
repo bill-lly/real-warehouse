@@ -20,7 +20,7 @@ public class DeviceIdProductIdILookupFunction extends ProcessFunction<RccPropert
 
   private static final Logger LOG = LoggerFactory.getLogger(DeviceIdProductIdILookupFunction.class);
   private final static String sql = "select bin_to_uuid(id, 1) as device_id, serial_number as product_id from device where id = uuid_to_bin(?,1)";
-  private LookupProcessor<BaseEntity> lookupProcessor;
+  private final LookupProcessor<BaseEntity> lookupProcessor;
 
   public DeviceIdProductIdILookupFunction(Properties properties) {
     String jdbcUrl = properties.getProperty("iot.device.management.jdbc.url");

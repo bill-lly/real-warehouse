@@ -1,49 +1,31 @@
 package com.gs.cloud.warehouse.robot.process;
 
 import com.gs.cloud.warehouse.entity.BaseEntity;
-import com.gs.cloud.warehouse.robot.entity.EventTicket;
-import com.gs.cloud.warehouse.robot.entity.IncidentEvent;
-import com.gs.cloud.warehouse.robot.entity.MonitorResult;
-import com.gs.cloud.warehouse.robot.entity.MonitorWindowStat;
-import com.gs.cloud.warehouse.robot.entity.RobotDisplacement;
-import com.gs.cloud.warehouse.robot.entity.RobotTimestamp;
-import com.gs.cloud.warehouse.robot.entity.RobotWorkOnlineState;
-import com.gs.cloud.warehouse.robot.entity.RuleResult;
-import com.gs.cloud.warehouse.robot.entity.rule.IncidentCntRule;
-import com.gs.cloud.warehouse.robot.entity.rule.Rule;
-import com.gs.cloud.warehouse.robot.entity.rule.RuleAbnormalShutDown;
-import com.gs.cloud.warehouse.robot.entity.rule.WorkStateLimitationRule;
-import com.gs.cloud.warehouse.robot.entity.WorkTask;
+import com.gs.cloud.warehouse.robot.entity.*;
+import com.gs.cloud.warehouse.robot.entity.rule.*;
 import com.gs.cloud.warehouse.robot.enums.ErrorWorkStateEnum;
 import com.gs.cloud.warehouse.robot.enums.IncidentCntEnum;
 import com.gs.cloud.warehouse.robot.enums.OnlineEnum;
 import com.gs.cloud.warehouse.robot.enums.TaskStatusEnum;
 import com.gs.cloud.warehouse.robot.enums.WorkStateLimitationEnum;
-import com.gs.cloud.warehouse.robot.rule.IRuleProcessor;
-import com.gs.cloud.warehouse.robot.rule.RuleAbnormalShutDownProcessor;
-import com.gs.cloud.warehouse.robot.rule.RuleInciCntProcessor;
-import com.gs.cloud.warehouse.robot.rule.RuleStateLmtProcessor;
-import org.apache.flink.api.common.state.ValueState;
-import org.apache.flink.api.common.state.ValueStateDescriptor;
+import com.gs.cloud.warehouse.robot.rule.*;
+import org.apache.flink.api.common.state.*;
 import org.apache.flink.api.common.typeinfo.BasicTypeInfo;
 import org.apache.flink.api.common.typeinfo.TypeHint;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.configuration.Configuration;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.flink.streaming.api.functions.KeyedProcessFunction;
 import org.apache.flink.util.Collector;
 import org.apache.flink.util.OutputTag;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
+import java.text.SimpleDateFormat;
+import java.util.*;
+
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.TreeMap;
+
 
 public class RemoteMaintCldMonitorProcessor
     extends KeyedProcessFunction<String, BaseEntity, MonitorResult> {
@@ -77,6 +59,13 @@ public class RemoteMaintCldMonitorProcessor
   private transient ValueState<Tuple2<Long, String>> taskStatusState;
 
   private transient ValueState<List<Rule>> ruleState;
+  // 待执行任务列表
+  private transient ListState<Tuple2<String, Long>> planTasksState;
+  // 基石数据状态,暂时不用
+//  private transient MapState<String, Long> cornerStoneState;
+  // 任务超时未执行时间 30 min
+  private final static long ThirtyMinutesMS = 30 * 60 * 1000L;
+  private final static long EightHoursMS = 8 * 60 * 60 * 1000L;
 
   public RemoteMaintCldMonitorProcessor(OutputTag<MonitorWindowStat> outputTag) {
     this.outputTag = outputTag;
@@ -113,10 +102,12 @@ public class RemoteMaintCldMonitorProcessor
         new ValueStateDescriptor<>("ruleState",
             TypeInformation.of(new TypeHint<List<Rule>>() {}), new ArrayList<>())
     );
+    planTasksState = getRuntimeContext().getListState(new ListStateDescriptor<>("planTasksState",
+            TypeInformation.of(new TypeHint<Tuple2<String, Long>>() {})));
+
     initRuleProcessor();
     super.open(parameters);
   }
-
   @Override
   public void processElement(BaseEntity value,
                              Context ctx,
@@ -133,6 +124,8 @@ public class RemoteMaintCldMonitorProcessor
       processMonitorTrigger(value, ctx);
     } else if (isTaskStatus(value)) {
       processTaskStatus((IncidentEvent) value);
+    }else if (isRobotPlanTask(value)) {
+      processRobotPlanTask((RobotPlanTask) value, ctx);
     }
   }
 
@@ -141,21 +134,32 @@ public class RemoteMaintCldMonitorProcessor
                       OnTimerContext ctx,
                       Collector<MonitorResult> out) throws Exception {
     Boolean doMonitor = doMonitorState.value();
-    if (!doMonitor) {
-      return;
-    }
+
     Long lastRobotTime = lastRobotTimeState.value();
     List<Long> monitorStartTimes = monitorTimeState.value();
     Long avgOffset = avgOffsetState.value();
     Long lastCheckTime = lastCheckTimeState.value();
+    final List<Tuple2<String, Long>> planTasks = (List<Tuple2<String, Long>>) (planTasksState.get());
 
+    // 先进判断是否有监控任务，有的话进行处理，否则跳过
+    if (planTasks.size() > 0) {
+      processPlanTaskState(out, ctx);
+      // 逻辑处理完毕，再判断是否还有任务监控，有则开启下一次监控
+      if ( planTasks.size()> 0) {
+        registerEventTimeTimer(ctx, ONE_MINUTE);
+      }
+    }
+
+    if (!doMonitor) {
+      return;
+    }
     MonitorWindowStat stat = MonitorWindowStat
-        .createDoMonitor(ctx.getCurrentKey(),
-            monitorStartTimes,
-            new Date(ctx.timestamp()),
-            lastRobotTime,
-            lastCheckTime,
-            avgOffset);
+            .createDoMonitor(ctx.getCurrentKey(),
+                    monitorStartTimes,
+                    new Date(ctx.timestamp()),
+                    lastRobotTime,
+                    lastCheckTime,
+                    avgOffset);
     stopMonitorIfTimeArrived(ctx, out, stat);
     registerEventTimeTimer(ctx, ONE_MINUTE);
   }
@@ -192,13 +196,26 @@ public class RemoteMaintCldMonitorProcessor
   }
 
   private void clearWorkState() throws IOException {
+    // 机器时间
+    Long lastRobotTime = lastRobotTimeState.value();
+    // 只保留2h内+上一条数据即可
     List<RobotWorkOnlineState> workStates = workStateState.value();
+    List<RobotWorkOnlineState> tempWorkStates = new ArrayList<>();
+
     if (workStates.size() <= 1) {
       return;
     }
-    RobotWorkOnlineState last = workStates.get(workStates.size() - 1);
-    workStates.clear();
-    workStates.add(last);
+
+    for (int i = workStates.size() - 2; i >= 0; i--) {
+      if (workStates.get(i).getTimestampUtc().getTime() < lastRobotTime - 2 * 60 * 60 * 1000l) {
+        tempWorkStates.add(workStates.get(i));
+        workStates.remove(i);
+      }
+    }
+    if (!tempWorkStates.isEmpty()){
+      workStates.add(0,tempWorkStates.get(0));
+      tempWorkStates.clear();
+    }
     workStateState.update(workStates);
   }
 
@@ -272,18 +289,15 @@ public class RemoteMaintCldMonitorProcessor
       registerEventTimeTimer(ctx, ONE_MINUTE);
     }
   }
-
   private MonitorWindowStat stopMonitorIfTimeArrived(Context ctx,
-                                        Collector<MonitorResult> out,
-                                        MonitorWindowStat stat) throws IOException {
+                                                     Collector<MonitorResult> out,
+                                                     MonitorWindowStat stat) throws IOException {
     if (!stat.isDoMonitor()) {
       return MonitorWindowStat.createUndoMonitor(ctx.getCurrentKey());
     }
     Long lastRobotTime = stat.getLastRobotUnixTimestamp();
     Long lastCheckTime = stat.getLastCheckUnixTimestamp();
     Long monitorStartTime = stat.getStartTimestamp().getTime();
-    Long avgOffset = stat.getAvgOffset();
-    Long cldTimestamp = stat.getCldTimestamp().getTime();
     List<RobotWorkOnlineState> workStates = sortWorkState();
     stat.setWorkStates(workStates);
 
@@ -299,27 +313,46 @@ public class RemoteMaintCldMonitorProcessor
       lastCheckTimeState.update(lastRobotTime);
       return rtv;
     } else {
-      if (!workStates.isEmpty()) {
-        RobotWorkOnlineState lastState = workStates.get(workStates.size() - 1);
-        if (OnlineEnum.OFFLINE.getCode().equals(lastState.getState())) {
-          //离线
-          //离线超过5分钟以上，且 云端时间-最后同步的车端时间超过平均偏移量+5分钟时
-          if (cldTimestamp - lastState.getCldTimestampUtc().getTime() > 30*60*1000
-              && cldTimestamp - lastRobotTime - avgOffset >  30*60*1000) {
+        if (IsOffline30Min(stat)) {
             MonitorWindowStat rtv = statWindowData(stat, lastRobotTime);
             rtv.setEndTimestamp(new Date(lastRobotTime));
             collect(ctx, rtv);
             resetMonitorWindow(ctx);
             return rtv;
             // todo 落库或者判断是否需要触发告警
-          }
         }
-      }
       //在线
       // do nothing
       return stat;
     }
   }
+  private boolean IsOfflineOfMin(OnTimerContext ctx,Long timeOutMs) throws IOException {
+    List<RobotWorkOnlineState> workStates = workStateState.value();
+    Long cldTimestamp = ctx.timestamp();
+    Long lastRobotTime = lastRobotTimeState.value();
+    Long avgOffset = avgOffsetState.value();
+    if (workStates.isEmpty()) {
+      return false;
+    }
+    RobotWorkOnlineState lastState = workStates.get(workStates.size() - 1);
+    return OnlineEnum.OFFLINE.getCode().equals(lastState.getState())
+            && (cldTimestamp - lastState.getCldTimestampUtc().getTime() > timeOutMs
+            && cldTimestamp - lastRobotTime - avgOffset >  timeOutMs);
+  }
+  private boolean IsOffline30Min(MonitorWindowStat stat) {
+    List<RobotWorkOnlineState> workStates = stat.getWorkStates();
+    Long cldTimestamp = stat.getCldTimestamp().getTime();
+    Long lastRobotTime = stat.getLastRobotUnixTimestamp();
+    Long avgOffset = stat.getAvgOffset();
+    if (workStates.isEmpty()) {
+      return false;
+    }
+    RobotWorkOnlineState lastState = workStates.get(workStates.size() - 1);
+    return OnlineEnum.OFFLINE.getCode().equals(lastState.getState())
+            && (cldTimestamp - lastState.getCldTimestampUtc().getTime() > 30*60*1000
+            && cldTimestamp - lastRobotTime - avgOffset >  30*60*1000);
+  }
+
 
   private void checkIfAlert(MonitorWindowStat rtv, Collector<MonitorResult> out) throws IOException {
     List<Rule> rules = ruleState.value();
@@ -360,7 +393,7 @@ public class RemoteMaintCldMonitorProcessor
 
     Long start = stat.getStartTimestamp().getTime();
     Tuple2<Map<String, Long>, Map<String, Long>> tuple2Duration
-        = statDuration(workStates, start, end, stat.getCldTimestamp().getTime());
+            = statDuration(workStates, start, end, stat.getCldTimestamp().getTime());
     Map<String, Integer> codeIncidentCntMap = statIncident(incidentMap, start, end);
     Optional<Integer> incidentCnt = codeIncidentCntMap.values().stream().reduce(Integer::sum);
     TreeMap<Long, Double> displacementInclude = statDisplacement(displacements, start, end);
@@ -400,7 +433,7 @@ public class RemoteMaintCldMonitorProcessor
   }
 
   private Tuple2<Long, String> getTaskStatusState(MonitorWindowStat stat) throws IOException {
-    if (stat.getTaskStatus()!= null) {
+    if (stat.getTaskStatus() != null) {
       return stat.getTaskStatus();
     }
     stat.setTaskStatus(taskStatusState.value());
@@ -408,37 +441,34 @@ public class RemoteMaintCldMonitorProcessor
   }
 
   private void processWorkOnlineState(RobotWorkOnlineState value,
-                                      Context ctx) throws IOException {
+                                      Context ctx) throws Exception {
     Boolean doMonitor = doMonitorState.value();
     List<RobotWorkOnlineState> workStates = workStateState.value();
     Long lastRobotTime = lastRobotTimeState.value();
+    List<Tuple2<String, Long>> planTasks = (List<Tuple2<String, Long>>) (planTasksState.get());
+
     if (value.isWorkState()) {
       //更新最近的车端时间
       Long currentRobotTime = value.getTimestampUtc().getTime();
       lastRobotTimeState.update(getLargerTime(lastRobotTime, currentRobotTime));
 
-      if (!doMonitor) {
-      //不在监控中的情况下，需要记录最近的一条工作状态
-        if (workStates.isEmpty()
-            || workStates.get(workStates.size()-1).getTimestampUtc().getTime() < currentRobotTime) {
-          workStates.clear();
-          workStates.add(value);
-          workStateState.update(workStates);
-        }
-      } else {
       //监控中，需要记录状态变化记录
-        //更新新的状态数据
-        workStates.add(value);
-        workStateState.update(workStates);
+      //更新新的状态数据
+      workStates.add(value);
+      workStateState.update(workStates);
+      if (doMonitor){
         registerEventTimeTimer(ctx, ONE_MINUTE);
       }
     } else {
-      if (doMonitor) {
-        value.setTimestampUtc(new Date(lastRobotTime));
-        workStates.add(value);
-        workStateState.update(workStates);
-      }
+      value.setTimestampUtc(new Date(lastRobotTime));
+      workStates.add(value);
+      workStateState.update(workStates);
     }
+
+    if (planTasks.size()>0){
+      registerEventTimeTimer(ctx, ONE_MINUTE);
+    }
+    clearWorkState();
   }
 
   private void processIncidentEvent(IncidentEvent value,
@@ -449,21 +479,22 @@ public class RemoteMaintCldMonitorProcessor
     lastRobotTimeState.update(getLargerTime(lastRobotTime, currentRobotTime));
 
     TreeMap<String, Integer> incidentMap = incidentState.value();
-    if (!doMonitor) {
-      if (incidentMap.isEmpty()
-          || getTimestampFromKey(incidentMap.lastKey()) < currentRobotTime) {
-        incidentMap.clear();
-        incidentMap.put(
-            getCodeIncidentStartTime(value.getIncidentCode(), value.getIncidentStartTime()), 1);
-        incidentState.update(incidentMap);
+    if (value.isCreateTicket() || value.isTaskStatus()){
+      if (!doMonitor) {
+        if (incidentMap.isEmpty() || getTimestampFromKey(incidentMap.lastKey()) < currentRobotTime) {
+          incidentMap.clear();
+          incidentMap.put(
+                  getCodeIncidentStartTime(value.getIncidentCode(), value.getIncidentStartTime()), 1);
+          incidentState.update(incidentMap);
+        }
+      } else {
+        String incidentKey = getCodeIncidentStartTime(value.getIncidentCode(), value.getIncidentStartTime());
+        if (!incidentMap.containsKey(incidentKey)) {
+          incidentMap.put(incidentKey, 1);
+          incidentState.update(incidentMap);
+        }
+        registerEventTimeTimer(ctx, ONE_MINUTE);
       }
-    } else {
-      String incidentKey = getCodeIncidentStartTime(value.getIncidentCode(), value.getIncidentStartTime());
-      if (!incidentMap.containsKey(incidentKey)) {
-        incidentMap.put(incidentKey, 1);
-        incidentState.update(incidentMap);
-      }
-      registerEventTimeTimer(ctx, ONE_MINUTE);
     }
   }
 
@@ -512,6 +543,28 @@ public class RemoteMaintCldMonitorProcessor
           TaskStatusEnum.TASK_END_20103.getStatus()));
     }
   }
+
+  public void processRobotPlanTask(RobotPlanTask value, Context ctx) throws Exception {
+    //手动插入数据无意义,无需处理
+    if (!value.getKey().equals("")) {
+      // 将任务缓存起来
+      planTasksState.add(Tuple2.of(value.getPlanTaskName(), value.getPlanTaskStartTimeMS()));
+      final List<Tuple2<String, Long>> planTasks = (List<Tuple2<String, Long>>) (planTasksState.get());
+      planTasks.sort((o1, o2) -> (int) (o1.f1 - o2.f1));
+      planTasksState.update(planTasks);
+
+      // TODO 开始监控
+      registerEventTimeTimer(ctx, ONE_MINUTE);
+    }
+  }
+
+//  private void processRobotCornerStone(RobotCornerStone value) throws Exception {
+//    final List<Tuple2<String, Long>> planTasks = (List<Tuple2<String, Long>>) (planTasksState.get());
+//      // 更新机器人车端时间
+//      Long lastRobotTime = lastRobotTimeState.value();
+//      lastRobotTime = getLargerTime(lastRobotTime, value.getEventTime().getTime());
+//      lastRobotTimeState.update(lastRobotTime);
+//  }
 
   private void startMonitor(Context ctx) throws IOException {
     initRule();
@@ -593,14 +646,14 @@ public class RemoteMaintCldMonitorProcessor
   }
 
   private TreeMap<Long, Double> statDisplacement(TreeMap<Long, Double> displacements,
-                                             Long start, Long end) {
+                                                 Long start, Long end) {
     TreeMap<Long, Double> rtv = new TreeMap<>();
     if (displacements.isEmpty()) {
       return rtv;
     }
     for (Long key : displacements.keySet()) {
       if (key >= start && key < end) {
-        rtv.put(key/1000, displacements.get(key));
+        rtv.put(key / 1000, displacements.get(key));
       }
     }
     return rtv;
@@ -652,11 +705,18 @@ public class RemoteMaintCldMonitorProcessor
     return value instanceof WorkTask;
   }
 
+  private boolean isRobotPlanTask(BaseEntity value) {
+    return value instanceof RobotPlanTask;
+  }
+
   private boolean isTaskStatus(BaseEntity value) {
     return value instanceof IncidentEvent
         && ((IncidentEvent)value).isTaskStatus();
   }
 
+//  private static boolean isRobotCornerStone(BaseEntity value) {
+//    return value instanceof RobotCornerStone;
+//  }
   private Long getLargerTime(Long date1, Long date2) {
     if (date1 == null) {
       return date2;
@@ -702,5 +762,112 @@ public class RemoteMaintCldMonitorProcessor
     });
     workStateState.update(workStates);
     return workStates;
+  }
+
+  private void processPlanTaskState(Collector<MonitorResult> out, OnTimerContext ctx) throws Exception {
+    final List<Tuple2<String, Long>> planTasks = (List<Tuple2<String, Long>>) (planTasksState.get());
+    final String taskName = planTasks.get(0).f0;
+    final Long taskStarkTime = planTasks.get(0).f1;
+    final Long taskTimeOutTime = planTasks.get(0).f1 + ThirtyMinutesMS;
+    final Long avgOffset = avgOffsetState.value();
+    final Long lastRobotTime = lastRobotTimeState.value();
+    final Long currentCldTimestamp = ctx.timestamp();
+    final List<RobotWorkOnlineState> workStates = workStateState.value();
+    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    sdf.setTimeZone(TimeZone.getTimeZone("GMT+8"));
+    final Map<String, Object> msg = new HashMap<>();
+    msg.put("taskName",taskName);
+    msg.put("taskTime",sdf.format(new Date(taskStarkTime)));
+
+    final RulePlanTaskNotExecution rulePlanTaskNotExecution = new RulePlanTaskNotExecution();
+    MonitorResult monitorResult = new MonitorResult(
+            ctx.getCurrentKey()
+            , new Date((lastRobotTime==0?currentCldTimestamp-avgOffset:lastRobotTime))
+            , new Date((lastRobotTime==0?currentCldTimestamp-avgOffset:lastRobotTime))
+            , rulePlanTaskNotExecution.getCode()
+            , ""
+    );
+
+
+    if (Math.abs(avgOffset) >= EightHoursMS * 3){
+      // 机云时间相差超过24H的数据不做监控
+      // 机云时间相差超过1天的数据不做监控 丢弃告警，不输出
+      clearPlanTaskState(planTasks);
+
+    } else if (workStates.isEmpty()){
+      // 机器工作&在离线 状态为空
+      if (lastRobotTime == 0l){
+        // 车端时间为0
+       if (currentCldTimestamp - avgOffset >= taskTimeOutTime + EightHoursMS) {
+          // 机器一直无车端数据上报且已超过8小时 丢弃告警，不输出
+          clearPlanTaskState(planTasks);
+        }
+      } else if (lastRobotTime > taskTimeOutTime) {
+        // TODO 机器时间超过任务告警时间，触发告警
+        msg.put("reason","No tasks have been executed");
+        monitorResult.setMsg(new ObjectMapper().writeValueAsString(msg));
+
+        clearPlanTaskState(planTasks);
+        out.collect(monitorResult);
+      }
+    } else {
+      // 判断机器是否离线
+      if (IsOfflineOfMin(ctx,ThirtyMinutesMS)) {
+        // 如果机器离线，机器最后的状态是offline，则判断 watermark-avgoffset是否超过半小时小时
+        if (currentCldTimestamp - avgOffset > taskTimeOutTime) {
+          // TODO 机器离线且未执行任务，输出告警
+          msg.put("reason","Robot offline,task ont executed");
+          monitorResult.setMsg(new ObjectMapper().writeValueAsString(msg));
+          clearPlanTaskState(planTasks);
+          out.collect(monitorResult);
+        }
+      } else if (workStates.get(workStates.size() - 1).getState().equals("230")) {
+        // 机器未离线，最后的状态为任务中,且状态开始时间小于任务超时时间 且 车端时间已到达任务开始时间
+        if (workStates.get(workStates.size() - 1).getTimestampUtc().getTime() <= taskTimeOutTime
+                && lastRobotTime >= taskStarkTime){
+          // 任务已执行 删除第一个任务 丢弃告警，不输出
+          clearPlanTaskState(planTasks);
+        }else if (workStates.get(workStates.size() - 1).getTimestampUtc().getTime() > taskTimeOutTime){
+          // TODO 任务超时，输出告警
+          msg.put("reason","Task timeout executed");
+          monitorResult.setMsg(new ObjectMapper().writeValueAsString(msg));
+          clearPlanTaskState(planTasks);
+          out.collect(monitorResult);
+        }
+      } else {
+        // 最后一个状态不是工作中,则判断机器 是否已经超过告警时间
+        if (lastRobotTime > taskTimeOutTime) {
+          // TODO 最后非工作状态持续半小时以上
+          msg.put("reason","Non-working state for more than 30 min, task not executed");
+          monitorResult.setMsg(new ObjectMapper().writeValueAsString(msg));
+          clearPlanTaskState(planTasks);
+          out.collect(monitorResult);
+        } else {
+          // 查找最近2小时内符合运行状态的数据
+          for (int i = workStates.size() - 2; i >= 0; i--) {
+            // 从倒数第二个状态开始判断
+            if (workStates.get(i).getState().equals("230")) {
+              // 已车端时间为准
+              long stateStartTime = workStates.get(i).getTimestampUtc().getTime();
+              long stateEndTime = workStates.get(i + 1).getTimestampUtc().getTime();
+              if ((stateStartTime >= taskStarkTime && stateStartTime <= taskTimeOutTime)
+                      || (stateEndTime <= taskTimeOutTime && stateEndTime >= taskStarkTime)) {
+                // 说明任务被执行，删除第一个任务 丢弃告警，不输出
+                clearPlanTaskState(planTasks);
+                break;
+              }
+            }
+          }
+        }
+      }
+    }
+    // 清理工作状态数据
+    clearWorkState();
+  }
+  // 清理排班任务状态
+  private void clearPlanTaskState(List<Tuple2<String, Long>> planTasks) throws Exception {
+    planTasks.remove(0);
+    planTasksState.clear();
+    planTasksState.update(planTasks);
   }
 }

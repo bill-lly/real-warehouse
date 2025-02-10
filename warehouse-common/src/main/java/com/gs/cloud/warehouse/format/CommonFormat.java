@@ -24,6 +24,9 @@ public class CommonFormat<T> implements DeserializationSchema<T>, SerializationS
 
   @Override
   public T deserialize(byte[] message) throws IOException {
+    if(message == null){
+      return null;
+    }
     return objectMapper.readValue(new String(message, charset), clazz);
   }
 

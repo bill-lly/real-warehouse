@@ -9,7 +9,6 @@ import com.gs.cloud.warehouse.robot.entity.RobotStateMapping;
 import com.gs.cloud.warehouse.robot.entity.RobotWorkState;
 import com.gs.cloud.warehouse.robot.lookup.RobotBasicDimLookupFunction;
 import com.gs.cloud.warehouse.robot.process.StateMappingCoGroupProcessor;
-import com.gs.cloud.warehouse.robot.sink.JdbcSinkGS;
 import com.gs.cloud.warehouse.robot.source.KafkaSourceFactory;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.common.state.StateTtlConfig;
@@ -19,8 +18,12 @@ import org.apache.flink.api.common.time.Time;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.configuration.Configuration;
+import org.apache.flink.connector.jdbc.JdbcConnectionOptions;
+import org.apache.flink.connector.jdbc.JdbcExecutionOptions;
+import org.apache.flink.connector.jdbc.JdbcSink;
 import org.apache.flink.shaded.guava30.com.google.common.base.Preconditions;
 import org.apache.flink.streaming.api.datastream.DataStream;
+import org.apache.flink.streaming.api.datastream.DataStreamSink;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.windowing.ProcessWindowFunction;
 import org.apache.flink.streaming.api.windowing.assigners.TumblingEventTimeWindows;
@@ -63,7 +66,7 @@ public class RobotStateMappingJob {
         .apply(new StateMappingCoGroupProcessor(properties))
         .process(new RobotBasicDimLookupFunction(properties));
     //result.print();
-    JdbcSinkGS.addRobotStateMappingSink(properties, result);
+    addRobotStateMappingSink(properties, result);
     env.execute();
   }
 
@@ -176,6 +179,53 @@ public class RobotStateMappingJob {
             lastIsOnlineValueState.update(lastRobotState);
           }
         });
+  }
+
+  public static DataStreamSink<RobotStateMapping> addRobotStateMappingSink(Properties properties,
+                                                                           DataStream<RobotStateMapping> resultStream) {
+
+    return resultStream.addSink(JdbcSink.sink(
+        "replace into real_robot_state_1_0_work_state_time_crossday " +
+            "(date, product_id, start_time, work_state_code, work_state, end_time, duration, end_date, is_online, recv_start_time, recv_end_time, robot_family_code, alias, customer_category, scene, group_name, terminal_user_name, customer_grade, delivery_status, business_area, udesk_maint_group_name, udesk_maint_level, udesk_ics_promotion, udesk_project_property)" +
+            "values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        (statement, mapping) -> {
+          statement.setDate(1, new java.sql.Date(mapping.getStartTime().getTime()));
+          statement.setString(2, mapping.getProductId());
+          statement.setTimestamp(3, new java.sql.Timestamp(mapping.getStartTime().getTime()));
+          statement.setString(4, mapping.getWorkStateCode());
+          statement.setString(5, mapping.getWorkState());
+          statement.setTimestamp(6, new java.sql.Timestamp(mapping.getEndTime().getTime()));
+          statement.setLong(7, mapping.getDuration());
+          statement.setDate(8, new java.sql.Date(mapping.getEndTime().getTime()));
+          statement.setObject(9, mapping.getIsOnline());
+          statement.setTimestamp(10, new java.sql.Timestamp(mapping.getRecvStartTime().getTime()));
+          statement.setTimestamp(11, new java.sql.Timestamp(mapping.getRecvEndTime().getTime()));
+          statement.setString(12, mapping.getRobotFamilyCode());
+          statement.setString(13, mapping.getAlias());
+          statement.setString(14, mapping.getCustomerCategory());
+          statement.setString(15, mapping.getScene());
+          statement.setString(16, mapping.getGroupName());
+          statement.setString(17, mapping.getTerminalUserName());
+          statement.setString(18, mapping.getCustomerGrade());
+          statement.setString(19, mapping.getDeliveryStatus());
+          statement.setString(20, mapping.getBusinessArea());
+          statement.setString(21, mapping.getUdeskMaintGroupName());
+          statement.setString(22, mapping.getUdeskMaintLevel());
+          statement.setString(23, mapping.getUdeskIcsPromotion());
+          statement.setString(24, mapping.getUdeskProjectProperty());
+        },
+        JdbcExecutionOptions.builder()
+            .withBatchSize(5000)
+            .withBatchIntervalMs(1000)
+            .withMaxRetries(5)
+            .build(),
+        new JdbcConnectionOptions.JdbcConnectionOptionsBuilder()
+            .withUrl(properties.getProperty("robotbi.jdbc.url"))
+            .withDriverName("com.mysql.jdbc.Driver")
+            .withUsername(properties.getProperty("robotbi.jdbc.user.name"))
+            .withPassword(properties.getProperty("robotbi.jdbc.password"))
+            .build()
+    ));
   }
 
 }

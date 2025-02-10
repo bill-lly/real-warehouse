@@ -2,11 +2,7 @@ package com.gs.cloud.warehouse.robot.entity;
 
 import org.apache.flink.api.java.tuple.Tuple2;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 
 public class MonitorWindowStat {
 

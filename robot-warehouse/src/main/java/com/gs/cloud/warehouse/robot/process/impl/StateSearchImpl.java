@@ -23,7 +23,7 @@ public class StateSearchImpl implements Serializable {
   private final static int maxRetryTimes = 3;
   private final JdbcConnectionProvider connectionProvider;
   private transient PreparedStatement statement;
-  private Date t2999;
+  private final Date t2999;
   private boolean inited = false;
 
   private final static String sql =

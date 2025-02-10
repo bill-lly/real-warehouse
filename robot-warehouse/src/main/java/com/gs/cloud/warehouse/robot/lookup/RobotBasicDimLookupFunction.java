@@ -21,7 +21,7 @@ public class RobotBasicDimLookupFunction
 
     private static final Logger LOG = LoggerFactory.getLogger(RobotBasicDimLookupFunction.class);
     private final static String sql = "select product_id, robot_family_code, alias, customer_category, scene, group_name, terminal_user_name, customer_grade, delivery_status, business_area, udesk_maint_group_name, udesk_maint_level, udesk_ics_promotion, udesk_project_property from bigdata_real_dim.bg_rt_robot_basic_dim where product_id = ?";
-    private LookupProcessor<BaseEntity> lookupProcessor;
+    private final LookupProcessor<BaseEntity> lookupProcessor;
 
     public RobotBasicDimLookupFunction(Properties properties) {
         String jdbcUrl = properties.getProperty("bigdata.real.dim.jdbc.url");

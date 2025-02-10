@@ -6,6 +6,6 @@ import com.gs.cloud.warehouse.robot.entity.RuleResult;
 
 public interface IRuleProcessor {
 
-  public RuleResult eval(Rule rule, MonitorWindowStat stat);
+  RuleResult eval(Rule rule, MonitorWindowStat stat);
 
 }

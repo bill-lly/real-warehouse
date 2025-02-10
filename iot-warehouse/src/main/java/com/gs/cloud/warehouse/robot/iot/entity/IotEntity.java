@@ -18,6 +18,8 @@ public class IotEntity {
 
   String data;
 
+  String pt;
+
   public String getProductKey() {
     return productKey;
   }
@@ -82,6 +84,14 @@ public class IotEntity {
     this.data = data;
   }
 
+  public String getPt() {
+    return pt;
+  }
+
+  public void setPt(String pt) {
+    this.pt = pt;
+  }
+
   @Override
   public String toString() {
     return "IotEntity{" +
@@ -93,6 +103,7 @@ public class IotEntity {
         ", cldUnixTimestamp='" + cldUnixTimestamp + '\'' +
         ", method='" + method + '\'' +
         ", data='" + data + '\'' +
+        ", pt='" + pt + '\'' +
         '}';
   }
 }

@@ -36,7 +36,6 @@ public class RccPropertyReportProcessor implements Serializable {
 
   private static final ObjectMapper objectMapper = new ObjectMapper();
 
-  private final SimpleDateFormat df_yyyyMMdd = new SimpleDateFormat("yyyyMMdd");
   private final SimpleDateFormat df_yyyyMMddHHmmss = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
   private final Properties properties;
@@ -75,7 +74,7 @@ public class RccPropertyReportProcessor implements Serializable {
       info.setX(position.get("x").asInt());
       info.setY(position.get("y").asInt());
       info.setAngle(position.get("angle").asDouble());
-      info.setPt(df_yyyyMMdd.format(DateUtils.addHours(info.getCldTimestampUtc(), 8)));
+      info.setPt(value.getPt());
       out.collect(info);
     }).returns(TypeInformation.of(RccPropertyReport.class))
         .process(new DeviceIdProductIdILookupFunction(properties));
@@ -92,9 +91,9 @@ public class RccPropertyReportProcessor implements Serializable {
         .build();
   }
 
-  public void sinkHudi(DataStream<RccPropertyReport> resultStream) {
-    String targetTable = "ods_i_rcc_property_report";
-    String basePath = "oss://cloud-emr-prod.cn-shanghai.oss-dls.aliyuncs.com/user/hive/warehouse/gs_real_ods.db/ods_i_rcc_property_report";
+  public void sinkHudi(DataStream<IotEntity> resultStream) {
+    String targetTable = "ods_i_rcc_property_report_new";
+    String basePath = "oss://cloud-emr-prod.cn-shanghai.oss-dls.aliyuncs.com/user/hive/warehouse/gs_real_ods.db/ods_i_rcc_property_report_new";
 
     Map<String, String> options = new HashMap<>();
     options.put(FlinkOptions.PATH.key(), basePath);
@@ -102,31 +101,29 @@ public class RccPropertyReportProcessor implements Serializable {
     options.put(FlinkOptions.OPERATION.key(), WriteOperationType.INSERT.value());
     options.put(FlinkOptions.WRITE_TASKS.key(), properties.getProperty("hudiParallelism", "1"));
     options.put(FlinkOptions.COMPACTION_TASKS.key(), properties.getProperty("hudiParallelism", "1"));
-    DataStream<RowData> dataStream = resultStream.map((MapFunction<RccPropertyReport, RowData>) value ->
+    DataStream<RowData> dataStream = resultStream.map((MapFunction<IotEntity, RowData>) value ->
         GenericRowData.of(
+            StringData.fromString(value.getProductKey()),
             StringData.fromString(value.getDeviceId()),
-            StringData.fromString(value.getProductId()),
-            value.getUnixTimestamp(),
-            value.getCldUnixTimestamp(),
-            StringData.fromString(value.getTimestampUtcStr()),
-            StringData.fromString(value.getCldTimestampUtcStr()),
-            value.getX(),
-            value.getY(),
-            value.getAngle(),
+            StringData.fromString(value.getVersion()),
+            StringData.fromString(value.getNamespace()),
+            StringData.fromString(value.getObjectName()),
+            StringData.fromString(value.getCldUnixTimestamp()),
+            StringData.fromString(value.getMethod()),
+            StringData.fromString(value.getData()),
             StringData.fromString(value.getPt())));
 
     HoodiePipeline.Builder builder = HoodiePipeline.builder(targetTable)
+        .column("product_key STRING")
         .column("device_id STRING")
-        .column("product_id STRING")
-        .column("unix_timestamp bigint")
-        .column("cld_unix_timestamp bigint")
-        .column("timestamp_utc String")
-        .column("cld_timestamp_utc String")
-        .column("position_x int")
-        .column("position_y int")
-        .column("angle Double")
-        .column("pt String")
-        .pk("device_id")
+        .column("version STRING")
+        .column("namespace STRING")
+        .column("object_name STRING")
+        .column("cld_unix_timestamp STRING")
+        .column("`method` STRING")
+        .column("data STRING")
+        .column("pt STRING")
+        .pk("product_key")
         .partition("pt")
         .options(options);
     builder.sink(dataStream, false);

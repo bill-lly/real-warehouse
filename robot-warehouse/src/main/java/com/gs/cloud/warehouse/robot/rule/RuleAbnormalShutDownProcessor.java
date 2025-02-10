@@ -37,8 +37,10 @@ public class RuleAbnormalShutDownProcessor implements IRuleProcessor{
         && (cldTimestamp - currState.f0 > OFFLINE_DURATION) && (cldTimestamp - robotTimestamp - avgOffset > OFFLINE_DURATION) //离线时长超过20分钟(既要看离线时间，还要看车端时间)
         && (robotTimestamp - taskStatus.f0 - avgOffset < 4*60*60*1000) //只看任务开始4小时内的数据，因为车端有可能会丢失任务开始结束的标签
         ) {
-      LOG.info(String.format("机器人异常关机, productId=%s, currState.f0=%s, currState.f1=%s, robotTimestamp=%s, cldTimestamp=%s, avgOffset=%s",
-          stat.getProductId(), currState.f0, currState.f1, robotTimestamp, cldTimestamp, avgOffset));
+      LOG.info(String.format("机器人异常关机, productId=%s, currState.f0=%s, currState.f1=%s, robotTimestamp=%s, " +
+                      "cldTimestamp=%s, avgOffset=%s, taskStatus.f1=%s, taskStatus.f0=%s",
+          stat.getProductId(), currState.f0, currState.f1, robotTimestamp, cldTimestamp, avgOffset, taskStatus.f1
+              , taskStatus.f0));
       return RuleResult.createError(rule.getCode(), "机器人异常关机");
     }
     return RuleResult.create(rule.getCode());

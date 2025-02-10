@@ -17,7 +17,7 @@ import java.util.Properties;
 public class RegionInfoLookupFunction extends ProcessFunction<MonitorResult, MonitorResult> {
 
   private final static String sql = "select product_id, maintenance_region_code from robot_maintenance_info where product_id = ?";
-  private LookupProcessor<BaseEntity> lookupProcessor;
+  private final LookupProcessor<BaseEntity> lookupProcessor;
 
   public RegionInfoLookupFunction(Properties properties) {
     String jdbcUrl = properties.getProperty("gs.robot.jdbc.url");

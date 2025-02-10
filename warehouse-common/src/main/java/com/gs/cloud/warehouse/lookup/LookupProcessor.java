@@ -19,11 +19,11 @@ import java.util.function.Function;
 public class LookupProcessor<T> implements Serializable {
 
   private static final Logger LOG = LoggerFactory.getLogger(LookupProcessor.class);
-  private JdbcConnectionProvider connectionProvider;
+  private final JdbcConnectionProvider connectionProvider;
   private transient Cache<String, List<T>> cache;
   private transient PreparedStatement statement;
-  private String sql;
-  private Boolean cacheWithEmpty;
+  private final String sql;
+  private final Boolean cacheWithEmpty;
 
   protected final static int maxRetryTimes = 3;
 

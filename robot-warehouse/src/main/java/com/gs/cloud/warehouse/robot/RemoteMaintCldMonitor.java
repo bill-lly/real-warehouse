@@ -1,5 +1,10 @@
 package com.gs.cloud.warehouse.robot;
 
+import org.apache.hudi.common.model.HoodieTableType;
+import org.apache.hudi.common.model.WriteOperationType;
+import org.apache.hudi.configuration.FlinkOptions;
+import org.apache.hudi.util.HoodiePipeline;
+
 import com.gs.cloud.warehouse.config.PropertiesHelper;
 import com.gs.cloud.warehouse.entity.BaseEntity;
 import com.gs.cloud.warehouse.robot.entity.EventTicket;
@@ -15,14 +20,16 @@ import com.gs.cloud.warehouse.robot.lookup.EventTaskTypeLookupFunction;
 import com.gs.cloud.warehouse.robot.lookup.RegionInfoLookupFunction;
 import com.gs.cloud.warehouse.robot.lookup.RobotInfoLookupFunction;
 import com.gs.cloud.warehouse.robot.process.RemoteMaintCldMonitorProcessor;
+import com.gs.cloud.warehouse.robot.source.PlanTaskSource;
+import com.gs.cloud.warehouse.robot.entity.*;
 import com.gs.cloud.warehouse.robot.process.RobotOffsetAvgProcessor;
-import com.gs.cloud.warehouse.robot.sink.HudiSinkGS;
-import com.gs.cloud.warehouse.robot.sink.JdbcSinkGS;
 import com.gs.cloud.warehouse.robot.source.KafkaSourceFactory;
 import com.gs.cloud.warehouse.robot.util.Convertor;
+import org.apache.commons.lang3.time.DateUtils;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.common.functions.CoGroupFunction;
 import org.apache.flink.api.common.functions.FilterFunction;
+import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.api.common.functions.RichCoGroupFunction;
 import org.apache.flink.api.common.state.StateTtlConfig;
 import org.apache.flink.api.common.state.ValueState;
@@ -37,13 +44,20 @@ import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.windowing.assigners.TumblingEventTimeWindows;
+import org.apache.flink.table.data.GenericRowData;
+import org.apache.flink.table.data.RowData;
+import org.apache.flink.table.data.StringData;
+import org.apache.flink.table.data.TimestampData;
 import org.apache.flink.util.Collector;
 import org.apache.flink.util.OutputTag;
-import util.KafkaSinkUtils;
+import com.gs.cloud.warehouse.util.KafkaSinkUtils;
 
+import java.text.SimpleDateFormat;
 import java.time.Duration;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 public class RemoteMaintCldMonitor {
@@ -59,6 +73,8 @@ public class RemoteMaintCldMonitor {
 //    StreamExecutionEnvironment env = StreamExecutionEnvironment.createLocalEnvironmentWithWebUI(configuration);
     StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
 //    env.setParallelism(1);
+    // 排班任务数据
+    DataStream<RobotPlanTask> robotPlanTask = getRobotPlanTask(env, properties, params);
     // todo 过滤掉老的数据，因为一些核心字段有可能为空
     DataStream<RobotState> robotStateSource = getRobotStateSource(env, properties)
         .filter(RobotState::isNewData);
@@ -73,8 +89,7 @@ public class RemoteMaintCldMonitor {
 
     DataStream<IncidentEvent> incidentEventStream = incidentEventSource
         .filter((FilterFunction<IncidentEvent>) value -> value.getKey() != null && value.isFault())
-        .process(new EventTaskTypeLookupFunction(properties))
-        .filter(x-> x.isCreateTicket() || x.isTaskStatus());
+        .process(new EventTaskTypeLookupFunction(properties));
 
     //merge state and incident
     DataStream<BaseEntity> stateIncident = mergeStateIncident(robotStateSource, incidentEventStream);
@@ -84,6 +99,12 @@ public class RemoteMaintCldMonitor {
     DataStream<BaseEntity> stateIncidentTicket = mergeEventTicket(stateIncidentDis, eventTicketSource);
     //merge work task data
     DataStream<BaseEntity> stateIncidentTicketTask = mergeWorkTask(stateIncidentTicket, workTaskSource);
+    //merge plan task data
+    DataStream<BaseEntity> stateIncidentTicketTaskPlanTask = mergeRobotPlanTask(stateIncidentTicketTask,
+            robotPlanTask);
+    //merge corner stone data
+//    DataStream<BaseEntity> stateIncidentTicketTaskStone = mergeCornerStone(stateIncidentTicketTask,
+//            robotCornerStoneSource);
 
     //计算机器人时间offset的平均值
     DataStream<RobotTimestamp> avgOffset = timestampSource.keyBy(RobotTimestamp::getKey)
@@ -91,7 +112,7 @@ public class RemoteMaintCldMonitor {
         .process(new RobotOffsetAvgProcessor());
 
     final OutputTag<MonitorWindowStat> outputTag = new OutputTag<MonitorWindowStat>("side-output"){};
-    SingleOutputStreamOperator<MonitorResult> result = stateIncidentTicketTask.coGroup(avgOffset)
+    SingleOutputStreamOperator<MonitorResult> result = stateIncidentTicketTaskPlanTask.coGroup(avgOffset)
         .where(BaseEntity::getKey).equalTo(RobotTimestamp::getKey)
         .window(TumblingEventTimeWindows.of(org.apache.flink.streaming.api.windowing.time.Time.seconds(60)))
         .apply(new CoGroupFunction<BaseEntity, RobotTimestamp, BaseEntity>() {
@@ -113,10 +134,25 @@ public class RemoteMaintCldMonitor {
         .map(Convertor::monitorResult2firedIncident)
         .sinkTo(KafkaSinkUtils.getKafkaSink(properties, new FiredIncident()));
     DataStream<MonitorWindowStat> sideOutputStream = result.getSideOutput(outputTag);
-    HudiSinkGS.sinkHudi(sideOutputStream, properties);
+    sinkHudi(sideOutputStream, properties);
     env.execute();
   }
 
+  private static DataStream<RobotPlanTask> getRobotPlanTask(StreamExecutionEnvironment env,
+                                                            Properties properties,ParameterTool params) {
+    return env.addSource(new PlanTaskSource(properties, params), "robot plan task")
+            .assignTimestampsAndWatermarks(WatermarkStrategy.<RobotPlanTask>forBoundedOutOfOrderness(Duration.ofSeconds(0))
+                    .withTimestampAssigner((event, timestamp) -> event.getEventTime().getTime())
+                    .withIdleness(Duration.ofSeconds(60)));
+  }
+  // 基石数据，暂时不接入
+//  private static DataStream<RobotCornerStone> getRobotCornerStone(StreamExecutionEnvironment env,
+//                                                                  Properties properties) {
+//    return env.fromSource(KafkaSourceFactory.getKafkaSource(properties, new RobotCornerStone(), JOB_NAME),
+//            WatermarkStrategy.<RobotCornerStone>forBoundedOutOfOrderness(Duration.ofSeconds(0))
+//                    .withTimestampAssigner((event, timestamp) -> event.getCldTimestampUtc().getTime()),
+//            "robot corner stone data");
+//  }
   private static DataStream<RobotTimestamp> getRobotTimestampSource(StreamExecutionEnvironment env, Properties properties) {
     return env.fromSource(KafkaSourceFactory.getKafkaSource(properties, new RobotTimestamp(), JOB_NAME),
         WatermarkStrategy.<RobotTimestamp>forBoundedOutOfOrderness(Duration.ofSeconds(0))
@@ -149,7 +185,7 @@ public class RemoteMaintCldMonitor {
     return env.fromSource(KafkaSourceFactory.getKafkaSource(properties, new WorkTask(), JOB_NAME),
         WatermarkStrategy.<WorkTask>forBoundedOutOfOrderness(Duration.ofSeconds(0))
             .withTimestampAssigner((event, timestamp) -> event.getUpdateTime().getTime()),
-        "event ticket data");
+        "work task data");
   }
 
   private static DataStream<RobotDisplacement> getDisplacementSource(StreamExecutionEnvironment env, Properties properties) {
@@ -321,8 +357,90 @@ public class RemoteMaintCldMonitor {
         });
   }
 
+//  private static DataStream<BaseEntity> mergeCornerStone(DataStream<BaseEntity> stateIncident,
+//                                                         DataStream<RobotCornerStone> cornerStoneSource) {
+//    return stateIncident.coGroup(cornerStoneSource)
+//            .where(value -> value.getKey()).equalTo(value -> value.getKey())
+//            .window(TumblingEventTimeWindows.of(org.apache.flink.streaming.api.windowing.time.Time.seconds(60)))
+//            .apply(new RichCoGroupFunction<BaseEntity, RobotCornerStone, BaseEntity>() {
+//              @Override
+//              public void coGroup(Iterable<BaseEntity> first, Iterable<RobotCornerStone> second,
+//                                  Collector<BaseEntity> out) throws Exception {
+//                first.forEach(out::collect);
+//                second.forEach(out::collect);
+//              }
+//            });
+//  }
+
+  private static DataStream<BaseEntity> mergeRobotPlanTask(DataStream<BaseEntity> MainStream,
+                                                           DataStream<RobotPlanTask> robotPlanTask) {
+    return MainStream.coGroup(robotPlanTask)
+            .where(value -> value.getKey()).equalTo(value -> value.getKey())
+            .window(TumblingEventTimeWindows.of(org.apache.flink.streaming.api.windowing.time.Time.seconds(60)))
+            .apply(new RichCoGroupFunction<BaseEntity, RobotPlanTask, BaseEntity>() {
+              @Override
+              public void coGroup(Iterable<BaseEntity> first, Iterable<RobotPlanTask> second,
+                                  Collector<BaseEntity> out) throws Exception {
+                first.forEach(out::collect);
+                second.forEach(out::collect);
+              }
+            });
+  }
+
   private static void validate(ParameterTool params) {
     Preconditions.checkNotNull(params.get("env"), "env can not be null");
+  }
+
+
+  public static void sinkHudi(DataStream<MonitorWindowStat> resultStream, Properties properties) {
+    String targetTable = "ads_real_monitor_window_stat";
+    String basePath = "oss://cloud-emr-prod.cn-shanghai.oss-dls.aliyuncs.com/user/hive/warehouse/gs_real_ads.db/ads_real_monitor_window_stat";
+//    String basePath = "oss://cloud-emr-prod.cn-shanghai.oss-dls.aliyuncs.com/user/hive/warehouse/gs_dev_real_ads" +
+//            ".db/ads_real_monitor_window_stat";
+
+    Map<String, String> options = new HashMap<>();
+    options.put(FlinkOptions.PATH.key(), basePath);
+    options.put(FlinkOptions.TABLE_TYPE.key(), HoodieTableType.COPY_ON_WRITE.name());
+    options.put(FlinkOptions.OPERATION.key(), WriteOperationType.INSERT.value());
+    options.put(FlinkOptions.WRITE_TASKS.key(), properties.getProperty("hudiParallelism", "1"));
+    options.put(FlinkOptions.COMPACTION_TASKS.key(), properties.getProperty("hudiParallelism", "1"));
+    DataStream<RowData> dataStream = resultStream.map((MapFunction<MonitorWindowStat, RowData>) value -> {
+      SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
+      String pt = sdf.format(DateUtils.addHours(value.getStartTimestamp(), 8));
+      return GenericRowData.of(
+          StringData.fromString(value.getProductId()),
+          TimestampData.fromEpochMillis(value.getStartTimestamp().getTime()),
+          TimestampData.fromEpochMillis(value.getEndTimestamp().getTime()),
+          value.getAvgOffset(),
+          value.getIncidentCnt(),
+          value.getTotalDisplacement(),
+          StringData.fromString(value.getCodeIncidentCnt().toString()),
+          StringData.fromString(value.getDurationMap().toString()),
+          StringData.fromString(value.getMaxDurationMap().toString()),
+          StringData.fromString(value.getWorkStates().toString()),
+          StringData.fromString(value.getIncidentMap().toString()),
+          StringData.fromString(value.getDisplacementMap().toString()),
+          StringData.fromString(pt));
+    });
+
+    HoodiePipeline.Builder builder = HoodiePipeline.builder(targetTable)
+        .column("product_id STRING")
+        .column("start_timestamp timestamp")
+        .column("end_timestamp timestamp")
+        .column("avg_offset bigint")
+        .column("incident_cnt int")
+        .column("total_displacement Double")
+        .column("code_incident_cnt String")
+        .column("duration_map String")
+        .column("max_duration_map String")
+        .column("state_map String")
+        .column("incident_map String")
+        .column("displacement_map String")
+        .column("pt String")
+        .pk("product_id")
+        .partition("pt")
+        .options(options);
+    builder.sink(dataStream, false);
   }
 
 }

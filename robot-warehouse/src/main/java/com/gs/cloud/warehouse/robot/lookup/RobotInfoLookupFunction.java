@@ -20,7 +20,7 @@ public class RobotInfoLookupFunction extends ProcessFunction<MonitorResult, Moni
 
   private static final Logger LOG = LoggerFactory.getLogger(LookupProcessor.class);
   private final static String sql = "select product_id, alias, software_version, customer_code, model_type_code from robot where product_id = ?";
-  private LookupProcessor<BaseEntity> lookupProcessor;
+  private final LookupProcessor<BaseEntity> lookupProcessor;
 
   public RobotInfoLookupFunction(Properties properties) {
     String jdbcUrl = properties.getProperty("gs.robot.jdbc.url");

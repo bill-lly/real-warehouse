@@ -24,8 +24,8 @@ import java.util.Properties;
 public class StateMappingCoGroupProcessor extends RichCoGroupFunction<RobotWorkState, RobotIsOnline, RobotStateMapping> {
 
   private transient ValueState<RobotStateMapping> robotStateMappingState;
-  private StateSearchImpl stateSearch;
-  private Date t2999;
+  private final StateSearchImpl stateSearch;
+  private final Date t2999;
 
   public StateMappingCoGroupProcessor(Properties properties) {
     stateSearch = new StateSearchImpl(properties);
@@ -64,7 +64,7 @@ public class StateMappingCoGroupProcessor extends RichCoGroupFunction<RobotWorkS
 
     RobotStateMapping lastStateMapping = robotStateMappingState.value();
     if (lastStateMapping == null) {
-      BaseEntity one = getMinBaseEntity(workStateList, onlineList);;
+      BaseEntity one = getMinBaseEntity(workStateList, onlineList);
       lastStateMapping = stateSearch.search(one.getKey(), one.getEventTime());
     }
 

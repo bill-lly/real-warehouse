@@ -13,7 +13,7 @@ import org.apache.flink.shaded.guava30.com.google.common.base.Preconditions;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.windowing.assigners.TumblingEventTimeWindows;
-import util.KafkaSourceUtils;
+import com.gs.cloud.warehouse.util.KafkaSourceUtils;
 
 import java.time.Duration;
 import java.util.Properties;

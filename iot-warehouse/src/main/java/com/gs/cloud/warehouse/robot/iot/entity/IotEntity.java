@@ -12,7 +12,7 @@ public class IotEntity {
 
   String objectName;
 
-  String cldUnixTimestamp;
+  Long cldUnixTimestamp;
 
   String method;
 
@@ -60,11 +60,11 @@ public class IotEntity {
     this.objectName = objectName;
   }
 
-  public String getCldUnixTimestamp() {
+  public Long getCldUnixTimestamp() {
     return cldUnixTimestamp;
   }
 
-  public void setCldUnixTimestamp(String cldUnixTimestamp) {
+  public void setCldUnixTimestamp(Long cldUnixTimestamp) {
     this.cldUnixTimestamp = cldUnixTimestamp;
   }
 
@@ -95,15 +95,15 @@ public class IotEntity {
   @Override
   public String toString() {
     return "IotEntity{" +
-        "productKey='" + productKey + '\'' +
-        ", deviceId='" + deviceId + '\'' +
-        ", version='" + version + '\'' +
-        ", namespace='" + namespace + '\'' +
-        ", objectName='" + objectName + '\'' +
-        ", cldUnixTimestamp='" + cldUnixTimestamp + '\'' +
-        ", method='" + method + '\'' +
-        ", data='" + data + '\'' +
-        ", pt='" + pt + '\'' +
-        '}';
+            "productKey='" + productKey + '\'' +
+            ", deviceId='" + deviceId + '\'' +
+            ", version='" + version + '\'' +
+            ", namespace='" + namespace + '\'' +
+            ", objectName='" + objectName + '\'' +
+            ", cldUnixTimestamp=" + cldUnixTimestamp +
+            ", method='" + method + '\'' +
+            ", data='" + data + '\'' +
+            ", pt='" + pt + '\'' +
+            '}';
   }
 }

@@ -34,6 +34,50 @@ public class Test01 {
 
   }
 
+  @Test
+  public void test03() throws ParseException {
+    System.out.println(compare("1.0.0", "1.3.0"));
+    System.out.println(compare("1.1.0", "1.3.0"));
+    System.out.println(compare("1.1.1", "1.3.0"));
+    System.out.println(compare("1.1.12", "1.3.0"));
+    System.out.println(compare("1.2.0", "1.3.0"));
+    System.out.println(compare("1.2.9", "1.3.0"));
+    System.out.println(compare("1.3.0", "1.3.0"));
+    System.out.println(compare("1.3.1", "1.3.0"));
+    System.out.println(compare("1.4.0", "1.3.0"));
+    System.out.println(compare("1.5.0", "1.3.0"));
+    System.out.println(compare("1.6.0", "1.3.0"));
+    System.out.println(compare("1.7.0", "1.3.0"));
+    System.out.println(compare("1.8.0", "1.3.0"));
+    System.out.println(compare("1.9.0", "1.3.0"));
+    System.out.println(compare("1.10.0", "1.3.0"));
+    System.out.println(compare("1.11.0", "1.3.0"));
+  }
+
+  public static int compare(String version1, String version2) {
+    // 分割版本号
+    String[] v1Parts = version1.split("\\.");
+    String[] v2Parts = version2.split("\\.");
+
+    // 获取最大长度
+    int maxLength = Math.max(v1Parts.length, v2Parts.length);
+
+    // 逐位比较
+    for (int i = 0; i < maxLength; i++) {
+      int v1 = i < v1Parts.length ? Integer.parseInt(v1Parts[i]) : 0;
+      int v2 = i < v2Parts.length ? Integer.parseInt(v2Parts[i]) : 0;
+
+      if (v1 > v2) {
+        return 1;  // version1 > version2
+      } else if (v1 < v2) {
+        return -1; // version1 < version2
+      }
+      // 相等则继续比较下一位
+    }
+
+    return 0; // 版本号完全相同
+  }
+
 
 
 }

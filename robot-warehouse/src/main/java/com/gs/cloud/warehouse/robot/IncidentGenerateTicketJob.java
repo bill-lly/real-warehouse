@@ -6,7 +6,7 @@ package com.gs.cloud.warehouse.robot;
 
 import com.gs.cloud.warehouse.config.PropertiesHelper;
 import com.gs.cloud.warehouse.robot.entity.RobotWorkState;
-import com.gs.cloud.warehouse.robot.source.KafkaSourceFactory;
+import com.gs.cloud.warehouse.source.KafkaSourceFactory;
 import com.gs.cloud.warehouse.robot.trigger.SingleElementWindows;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.java.utils.ParameterTool;

@@ -23,7 +23,7 @@ import com.gs.cloud.warehouse.robot.process.RemoteMaintCldMonitorProcessor;
 import com.gs.cloud.warehouse.robot.source.PlanTaskSource;
 import com.gs.cloud.warehouse.robot.entity.*;
 import com.gs.cloud.warehouse.robot.process.RobotOffsetAvgProcessor;
-import com.gs.cloud.warehouse.robot.source.KafkaSourceFactory;
+import com.gs.cloud.warehouse.source.KafkaSourceFactory;
 import com.gs.cloud.warehouse.robot.util.Convertor;
 import org.apache.commons.lang3.time.DateUtils;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;

@@ -73,12 +73,14 @@ public class PlanTaskSource extends RichSourceFunction<RobotPlanTask> implements
                             "select product_id,\n" +
                             "       time_zone_id,\n" +
                             "       plan_task_name,\n" +
-                            "       plan_task_start_time_ts\n" +
-                            "from robot_plan_task \n" +
+                            "       plan_task_start_time_ts,\n" +
+                            "       id,\n" +
+                            "       task_info \n" +
+                            "from robot_schtasks_plan_task \n" +
                             "where biz_date = ? \n" +
                             "  and plan_task_start_time_ts >= ? \n" +
                             "  and plan_task_start_time_ts < ? \n" +
-                            "order by plan_task_start_time_utc,id;";
+                            "order by plan_task_start_time_ts;";
 
                     ps = connect.prepareStatement(sql);
                     ps.setString(1, lastReadDate);
@@ -97,12 +99,19 @@ public class PlanTaskSource extends RichSourceFunction<RobotPlanTask> implements
                         robotPlanTask.setPlanTaskStartTimeMS(resultSet.getLong(4) * 1000);
                         robotPlanTask.setPlanTaskStartTimeLocal(getLocalDate(resultSet.getLong(4),
                                 resultSet.getString(2)));
+                        robotPlanTask.setId(resultSet.getLong(5));
+                        robotPlanTask.setTaskInfo(resultSet.getString(6));
+                        robotPlanTask.setCldTimestampUTC(new Date(queryStartTime + OneMinuteSecond));
+
                         queryDataRows++;
                         collect.collect(robotPlanTask);
                     }
                     if (queryDataRows == 0) {
                         RobotPlanTask robotPlanTask = new RobotPlanTask();
                         robotPlanTask.setEventTime(new Date((queryStartTime) * 1000));
+                        robotPlanTask.setId(null);
+                        robotPlanTask.setTaskInfo("");
+                        robotPlanTask.setCldTimestampUTC(new Date(queryStartTime + OneMinuteSecond));
                         robotPlanTask.setProductId("");
                         robotPlanTask.setTimeZone("Asia/Shanghai");
                         robotPlanTask.setPlanTaskName("");
@@ -141,15 +150,14 @@ public class PlanTaskSource extends RichSourceFunction<RobotPlanTask> implements
     }
 
     /**
-     * @return 获取分区日期，当日计算数据T-1
+     * @return 获取分区日期，排班任务GMT+8:00的执行日期
      */
     private String getPartitionDate(long currentTimestamp) {
 
         LocalDateTime currentDateTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(currentTimestamp), ZoneId.of(
                 "Asia/Shanghai"));
-        LocalDateTime previousDateTime = currentDateTime.minusDays(1);
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        String readPartitionDate = previousDateTime.format(formatter);
+        String readPartitionDate = currentDateTime.format(formatter);
         return readPartitionDate;
     }
 

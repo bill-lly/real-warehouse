@@ -10,6 +10,7 @@ public class PersonLocationBeaconFilter implements FilterFunction<PersonLocation
             || value.getSpaceName() == null ||value.getSpaceName().equals("")
             || value.getCrewId() == null ||value.getCrewId().equals("")
             || value.getReportTimestamp() == null
+            || value.getReportTimestampT().getTime() > value.getCloudRecvTime().getTime()
             ){
             return false;
         }

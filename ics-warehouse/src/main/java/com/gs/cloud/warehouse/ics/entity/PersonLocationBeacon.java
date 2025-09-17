@@ -23,11 +23,15 @@ public class PersonLocationBeacon extends FactEntity {
     private String personName;
     //上报时间戳
     @JsonProperty("report_timestamp")
-    private Long reportTimestamp;
+    private String reportTimestamp;
     //上报时间
     @JsonProperty("report_timestamp_t")
     @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date reportTimestampT;
+    //云端时间(来自于kafka接收时间)
+    @JsonProperty("cloud_recv_time")
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date cloudRecvTime;
     //空间code
     @JsonProperty("space_code")
     private String spaceCode;
@@ -55,13 +59,17 @@ public class PersonLocationBeacon extends FactEntity {
 
     public void setPersonName(String personName) { this.personName = personName; }
 
-    public Long getReportTimestamp() { return reportTimestamp; }
+    public String getReportTimestamp() { return reportTimestamp; }
 
-    public void setReportTimestamp(Long reportTimestamp) { this.reportTimestamp = reportTimestamp; }
+    public void setReportTimestamp(String reportTimestamp) { this.reportTimestamp = reportTimestamp; }
 
     public Date getReportTimestampT() { return reportTimestampT; }
 
     public void setReportTimestampT(Date reportTimestampT) { this.reportTimestampT = reportTimestampT; }
+
+    public Date getCloudRecvTime() { return cloudRecvTime; }
+
+    public void setCloudRecvTime(Date cloudRecvTime) { this.cloudRecvTime = cloudRecvTime; }
 
     public String getSpaceCode() { return spaceCode; }
 
@@ -106,8 +114,9 @@ public class PersonLocationBeacon extends FactEntity {
                 "requestId='" + requestId + '\'' +
                 ", personId='" + personId + '\'' +
                 ", personName='" + personName + '\'' +
-                ", reportTimestamp=" + reportTimestamp +
+                ", reportTimestamp='" + reportTimestamp + '\'' +
                 ", reportTimestampT=" + reportTimestampT +
+                ", cloudRecvTime=" + cloudRecvTime +
                 ", spaceCode='" + spaceCode + '\'' +
                 ", spaceName='" + spaceName + '\'' +
                 ", crewId='" + crewId + '\'' +

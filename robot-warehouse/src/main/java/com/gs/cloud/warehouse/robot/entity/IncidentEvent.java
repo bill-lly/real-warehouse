@@ -72,6 +72,46 @@ public class IncidentEvent extends FactEntity {
   @JsonProperty("business_area")
   private String businessArea;
 
+  private String incidentTitle;
+
+  private String incidentLevel;
+
+  private int isBlockingTask;
+
+  private String otherEffective;
+
+  public String getIncidentTitle() {
+    return incidentTitle;
+  }
+
+  public void setIncidentTitle(String incidentTitle) {
+    this.incidentTitle = incidentTitle;
+  }
+
+  public String getIncidentLevel() {
+    return incidentLevel;
+  }
+
+  public void setIncidentLevel(String incidentLevel) {
+    this.incidentLevel = incidentLevel;
+  }
+
+  public int getIsBlockingTask() {
+    return isBlockingTask;
+  }
+
+  public void setIsBlockingTask(int isBlockingTask) {
+    this.isBlockingTask = isBlockingTask;
+  }
+
+  public String getOtherEffective() {
+    return otherEffective;
+  }
+
+  public void setOtherEffective(String otherEffective) {
+    this.otherEffective = otherEffective;
+  }
+
   private boolean createTicket;
 
   public String getId() {
@@ -313,6 +353,10 @@ public class IncidentEvent extends FactEntity {
         ", customerGrade='" + customerGrade + '\'' +
         ", robotFamilyCode='" + robotFamilyCode + '\'' +
         ", businessArea='" + businessArea + '\'' +
-        '}';
+        ", incidentTitle='" + incidentTitle +'\'' +
+        ", incidentLevel='"  +incidentLevel +'\'' +
+        ", isBlockingTask="  +isBlockingTask +
+        ", otherEffective='" +otherEffective +
+          '}';
   }
 }

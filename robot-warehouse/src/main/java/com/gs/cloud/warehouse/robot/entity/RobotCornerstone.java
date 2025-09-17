@@ -365,6 +365,139 @@ public class RobotCornerstone extends FactEntity {
     private String rollingBrushMotorFrontPwmFeedBack;
     @JsonProperty("rolling_brush_motor_after_pwm_feed_back")
     private String rollingBrushMotorAfterPwmFeedBack;
+    @JsonProperty("batt_balance_status")
+    private String battBalanceStatus;
+    @JsonProperty("batt_bms_status")
+    private String battBmsStatus;
+    @JsonProperty("batt_cycle_times")
+    private String battCycleTimes;
+    @JsonProperty("batt_full_cap")
+    private String battFullCap;
+    @JsonProperty("batt_hw_ver")
+    private String battHwVer;
+    @JsonProperty("batt_mcu_e44")
+    private String battMcuE44;
+    @JsonProperty("batt_protector_status")
+    private String battProtectorStatus;
+    @JsonProperty("batt_reboot_times")
+    private String battRebootTimes;
+    @JsonProperty("batt_remain_cap")
+    private String battRemainCap;
+    @JsonProperty("batt_soh")
+    private String battSoh;
+    @JsonProperty("batt_sw_ver")
+    private String battSwVer;
+    @JsonProperty("batt_temp1")
+    private String battTemp1;
+    @JsonProperty("batt_temp2")
+    private String battTemp2;
+    @JsonProperty("batt_temp3")
+    private String battTemp3;
+    @JsonProperty("batt_temp4")
+    private String battTemp4;
+    @JsonProperty("batt_temp5")
+    private String battTemp5;
+    @JsonProperty("batt_temp6")
+    private String battTemp6;
+    @JsonProperty("batt_temp7")
+    private String battTemp7;
+    @JsonProperty("batt_total_cap")
+    private String battTotalCap;
+    @JsonProperty("batt_total_run_time")
+    private String battTotalRunTime;
+    @JsonProperty("batt_volt1")
+    private String battVolt1;
+    @JsonProperty("batt_volt10")
+    private String battVolt10;
+    @JsonProperty("batt_volt11")
+    private String battVolt11;
+    @JsonProperty("batt_volt12")
+    private String battVolt12;
+    @JsonProperty("batt_volt13")
+    private String battVolt13;
+    @JsonProperty("batt_volt14")
+    private String battVolt14;
+    @JsonProperty("batt_volt15")
+    private String battVolt15;
+    @JsonProperty("batt_volt2")
+    private String battVolt2;
+    @JsonProperty("batt_volt3")
+    private String battVolt3;
+    @JsonProperty("batt_volt4")
+    private String battVolt4;
+    @JsonProperty("batt_volt5")
+    private String battVolt5;
+    @JsonProperty("batt_volt6")
+    private String battVolt6;
+    @JsonProperty("batt_volt7")
+    private String battVolt7;
+    @JsonProperty("batt_volt8")
+    private String battVolt8;
+    @JsonProperty("batt_volt9")
+    private String battVolt9;
+    @JsonProperty("wm_actual_speed_l")
+    private String wmActualSpeedL;
+    @JsonProperty("wm_actual_speed_r")
+    private String wmActualSpeedR;
+    @JsonProperty("wm_bus_volt")
+    private String wmBusVolt;
+    @JsonProperty("wm_counts_l")
+    private String wmCountsL;
+    @JsonProperty("wm_counts_r")
+    private String wmCountsR;
+    @JsonProperty("wm_current_l")
+    private String wmCurrentL;
+    @JsonProperty("wm_current_r")
+    private String wmCurrentR;
+    @JsonProperty("wm_mcu_e42")
+    private String wmMcuE42;
+    @JsonProperty("wm_mcu_e45")
+    private String wmMcuE45;
+    @JsonProperty("wm_mcu_e46")
+    private String wmMcuE46;
+    @JsonProperty("wm_mcu_e47")
+    private String wmMcuE47;
+    @JsonProperty("wm_ref_speed_l")
+    private String wmRefSpeedL;
+    @JsonProperty("wm_ref_speed_r")
+    private String wmRefSpeedR;
+    @JsonProperty("wm_temp_l")
+    private String wmTempL;
+    @JsonProperty("wm_temp_r")
+    private String wmTempR;
+    @JsonProperty("fm_mcu_e27")
+    private String fmMcuE27;
+    @JsonProperty("fm_vacuum_driver_temp")
+    private String fmVacuumDriverTemp;
+    @JsonProperty("fm_vacuum_speed")
+    private String fmVacuumSpeed;
+    @JsonProperty("fm_vacuum_temp")
+    private String fmVacuumTemp;
+    @JsonProperty("fm_current")
+    private String fmCurrent;
+    @JsonProperty("hm_brush_down")
+    private String hmBrushDown;
+    @JsonProperty("hm_brush_lift_motor_current")
+    private String hmBrushLiftMotorCurrent;
+    @JsonProperty("hm_filter_motor")
+    private String hmFilterMotor;
+    @JsonProperty("hm_mcu_e37")
+    private String hmMcuE37;
+    @JsonProperty("hm_mcu_e48")
+    private String hmMcuE48;
+    @JsonProperty("hm_outlet_valve")
+    private String hmOutletValve;
+    @JsonProperty("hm_power_board_bus_volt")
+    private String hmPowerBoardBusVolt;
+    @JsonProperty("hm_rolling_brush_pressure_level")
+    private String hmRollingBrushPressureLevel;
+    @JsonProperty("hm_rolling_brush_spin_level")
+    private String hmRollingBrushSpinLevel;
+    @JsonProperty("hm_brush_motor_current")
+    private String hmBrushMotorCurrent;
+    @JsonProperty("lld_relay")
+    private String lldRelay;
+
 
     @Override
     public Date getEventTime() {
@@ -1766,179 +1899,773 @@ public class RobotCornerstone extends FactEntity {
         this.rollingBrushMotorAfterPwmFeedBack = rollingBrushMotorAfterPwmFeedBack;
     }
 
+    public String getBattBalanceStatus() {
+        return battBalanceStatus;
+    }
+
+    public void setBattBalanceStatus(String battBalanceStatus) {
+        this.battBalanceStatus = battBalanceStatus;
+    }
+
+    public String getBattBmsStatus() {
+        return battBmsStatus;
+    }
+
+    public void setBattBmsStatus(String battBmsStatus) {
+        this.battBmsStatus = battBmsStatus;
+    }
+
+    public String getBattCycleTimes() {
+        return battCycleTimes;
+    }
+
+    public void setBattCycleTimes(String battCycleTimes) {
+        this.battCycleTimes = battCycleTimes;
+    }
+
+    public String getBattFullCap() {
+        return battFullCap;
+    }
+
+    public void setBattFullCap(String battFullCap) {
+        this.battFullCap = battFullCap;
+    }
+
+    public String getBattHwVer() {
+        return battHwVer;
+    }
+
+    public void setBattHwVer(String battHwVer) {
+        this.battHwVer = battHwVer;
+    }
+
+    public String getBattMcuE44() {
+        return battMcuE44;
+    }
+
+    public void setBattMcuE44(String battMcuE44) {
+        this.battMcuE44 = battMcuE44;
+    }
+
+    public String getBattProtectorStatus() {
+        return battProtectorStatus;
+    }
+
+    public void setBattProtectorStatus(String battProtectorStatus) {
+        this.battProtectorStatus = battProtectorStatus;
+    }
+
+    public String getBattRebootTimes() {
+        return battRebootTimes;
+    }
+
+    public void setBattRebootTimes(String battRebootTimes) {
+        this.battRebootTimes = battRebootTimes;
+    }
+
+    public String getBattRemainCap() {
+        return battRemainCap;
+    }
+
+    public void setBattRemainCap(String battRemainCap) {
+        this.battRemainCap = battRemainCap;
+    }
+
+    public String getBattSoh() {
+        return battSoh;
+    }
+
+    public void setBattSoh(String battSoh) {
+        this.battSoh = battSoh;
+    }
+
+    public String getBattSwVer() {
+        return battSwVer;
+    }
+
+    public void setBattSwVer(String battSwVer) {
+        this.battSwVer = battSwVer;
+    }
+
+    public String getBattTemp1() {
+        return battTemp1;
+    }
+
+    public void setBattTemp1(String battTemp1) {
+        this.battTemp1 = battTemp1;
+    }
+
+    public String getBattTemp2() {
+        return battTemp2;
+    }
+
+    public void setBattTemp2(String battTemp2) {
+        this.battTemp2 = battTemp2;
+    }
+
+    public String getBattTemp3() {
+        return battTemp3;
+    }
+
+    public void setBattTemp3(String battTemp3) {
+        this.battTemp3 = battTemp3;
+    }
+
+    public String getBattTemp4() {
+        return battTemp4;
+    }
+
+    public void setBattTemp4(String battTemp4) {
+        this.battTemp4 = battTemp4;
+    }
+
+    public String getBattTemp5() {
+        return battTemp5;
+    }
+
+    public void setBattTemp5(String battTemp5) {
+        this.battTemp5 = battTemp5;
+    }
+
+    public String getBattTemp6() {
+        return battTemp6;
+    }
+
+    public void setBattTemp6(String battTemp6) {
+        this.battTemp6 = battTemp6;
+    }
+
+    public String getBattTemp7() {
+        return battTemp7;
+    }
+
+    public void setBattTemp7(String battTemp7) {
+        this.battTemp7 = battTemp7;
+    }
+
+    public String getBattTotalCap() {
+        return battTotalCap;
+    }
+
+    public void setBattTotalCap(String battTotalCap) {
+        this.battTotalCap = battTotalCap;
+    }
+
+    public String getBattTotalRunTime() {
+        return battTotalRunTime;
+    }
+
+    public void setBattTotalRunTime(String battTotalRunTime) {
+        this.battTotalRunTime = battTotalRunTime;
+    }
+
+    public String getBattVolt1() {
+        return battVolt1;
+    }
+
+    public void setBattVolt1(String battVolt1) {
+        this.battVolt1 = battVolt1;
+    }
+
+    public String getBattVolt10() {
+        return battVolt10;
+    }
+
+    public void setBattVolt10(String battVolt10) {
+        this.battVolt10 = battVolt10;
+    }
+
+    public String getBattVolt11() {
+        return battVolt11;
+    }
+
+    public void setBattVolt11(String battVolt11) {
+        this.battVolt11 = battVolt11;
+    }
+
+    public String getBattVolt12() {
+        return battVolt12;
+    }
+
+    public void setBattVolt12(String battVolt12) {
+        this.battVolt12 = battVolt12;
+    }
+
+    public String getBattVolt13() {
+        return battVolt13;
+    }
+
+    public void setBattVolt13(String battVolt13) {
+        this.battVolt13 = battVolt13;
+    }
+
+    public String getBattVolt14() {
+        return battVolt14;
+    }
+
+    public void setBattVolt14(String battVolt14) {
+        this.battVolt14 = battVolt14;
+    }
+
+    public String getBattVolt15() {
+        return battVolt15;
+    }
+
+    public void setBattVolt15(String battVolt15) {
+        this.battVolt15 = battVolt15;
+    }
+
+    public String getBattVolt2() {
+        return battVolt2;
+    }
+
+    public void setBattVolt2(String battVolt2) {
+        this.battVolt2 = battVolt2;
+    }
+
+    public String getBattVolt3() {
+        return battVolt3;
+    }
+
+    public void setBattVolt3(String battVolt3) {
+        this.battVolt3 = battVolt3;
+    }
+
+    public String getBattVolt4() {
+        return battVolt4;
+    }
+
+    public void setBattVolt4(String battVolt4) {
+        this.battVolt4 = battVolt4;
+    }
+
+    public String getBattVolt5() {
+        return battVolt5;
+    }
+
+    public void setBattVolt5(String battVolt5) {
+        this.battVolt5 = battVolt5;
+    }
+
+    public String getBattVolt6() {
+        return battVolt6;
+    }
+
+    public void setBattVolt6(String battVolt6) {
+        this.battVolt6 = battVolt6;
+    }
+
+    public String getBattVolt7() {
+        return battVolt7;
+    }
+
+    public void setBattVolt7(String battVolt7) {
+        this.battVolt7 = battVolt7;
+    }
+
+    public String getBattVolt8() {
+        return battVolt8;
+    }
+
+    public void setBattVolt8(String battVolt8) {
+        this.battVolt8 = battVolt8;
+    }
+
+    public String getBattVolt9() {
+        return battVolt9;
+    }
+
+    public void setBattVolt9(String battVolt9) {
+        this.battVolt9 = battVolt9;
+    }
+
+    public String getWmActualSpeedL() {
+        return wmActualSpeedL;
+    }
+
+    public void setWmActualSpeedL(String wmActualSpeedL) {
+        this.wmActualSpeedL = wmActualSpeedL;
+    }
+
+    public String getWmActualSpeedR() {
+        return wmActualSpeedR;
+    }
+
+    public void setWmActualSpeedR(String wmActualSpeedR) {
+        this.wmActualSpeedR = wmActualSpeedR;
+    }
+
+    public String getWmBusVolt() {
+        return wmBusVolt;
+    }
+
+    public void setWmBusVolt(String wmBusVolt) {
+        this.wmBusVolt = wmBusVolt;
+    }
+
+    public String getWmCountsL() {
+        return wmCountsL;
+    }
+
+    public void setWmCountsL(String wmCountsL) {
+        this.wmCountsL = wmCountsL;
+    }
+
+    public String getWmCountsR() {
+        return wmCountsR;
+    }
+
+    public void setWmCountsR(String wmCountsR) {
+        this.wmCountsR = wmCountsR;
+    }
+
+    public String getWmCurrentL() {
+        return wmCurrentL;
+    }
+
+    public void setWmCurrentL(String wmCurrentL) {
+        this.wmCurrentL = wmCurrentL;
+    }
+
+    public String getWmCurrentR() {
+        return wmCurrentR;
+    }
+
+    public void setWmCurrentR(String wmCurrentR) {
+        this.wmCurrentR = wmCurrentR;
+    }
+
+    public String getWmMcuE42() {
+        return wmMcuE42;
+    }
+
+    public void setWmMcuE42(String wmMcuE42) {
+        this.wmMcuE42 = wmMcuE42;
+    }
+
+    public String getWmMcuE45() {
+        return wmMcuE45;
+    }
+
+    public void setWmMcuE45(String wmMcuE45) {
+        this.wmMcuE45 = wmMcuE45;
+    }
+
+    public String getWmMcuE46() {
+        return wmMcuE46;
+    }
+
+    public void setWmMcuE46(String wmMcuE46) {
+        this.wmMcuE46 = wmMcuE46;
+    }
+
+    public String getWmMcuE47() {
+        return wmMcuE47;
+    }
+
+    public void setWmMcuE47(String wmMcuE47) {
+        this.wmMcuE47 = wmMcuE47;
+    }
+
+    public String getWmRefSpeedL() {
+        return wmRefSpeedL;
+    }
+
+    public void setWmRefSpeedL(String wmRefSpeedL) {
+        this.wmRefSpeedL = wmRefSpeedL;
+    }
+
+    public String getWmRefSpeedR() {
+        return wmRefSpeedR;
+    }
+
+    public void setWmRefSpeedR(String wmRefSpeedR) {
+        this.wmRefSpeedR = wmRefSpeedR;
+    }
+
+    public String getWmTempL() {
+        return wmTempL;
+    }
+
+    public void setWmTempL(String wmTempL) {
+        this.wmTempL = wmTempL;
+    }
+
+    public String getWmTempR() {
+        return wmTempR;
+    }
+
+    public void setWmTempR(String wmTempR) {
+        this.wmTempR = wmTempR;
+    }
+
+    public String getFmMcuE27() {
+        return fmMcuE27;
+    }
+
+    public void setFmMcuE27(String fmMcuE27) {
+        this.fmMcuE27 = fmMcuE27;
+    }
+
+    public String getFmVacuumDriverTemp() {
+        return fmVacuumDriverTemp;
+    }
+
+    public void setFmVacuumDriverTemp(String fmVacuumDriverTemp) {
+        this.fmVacuumDriverTemp = fmVacuumDriverTemp;
+    }
+
+    public String getFmVacuumSpeed() {
+        return fmVacuumSpeed;
+    }
+
+    public void setFmVacuumSpeed(String fmVacuumSpeed) {
+        this.fmVacuumSpeed = fmVacuumSpeed;
+    }
+
+    public String getFmVacuumTemp() {
+        return fmVacuumTemp;
+    }
+
+    public void setFmVacuumTemp(String fmVacuumTemp) {
+        this.fmVacuumTemp = fmVacuumTemp;
+    }
+
+    public String getFmCurrent() {
+        return fmCurrent;
+    }
+
+    public void setFmCurrent(String fmCurrent) {
+        this.fmCurrent = fmCurrent;
+    }
+
+    public String getHmBrushDown() {
+        return hmBrushDown;
+    }
+
+    public void setHmBrushDown(String hmBrushDown) {
+        this.hmBrushDown = hmBrushDown;
+    }
+
+    public String getHmBrushLiftMotorCurrent() {
+        return hmBrushLiftMotorCurrent;
+    }
+
+    public void setHmBrushLiftMotorCurrent(String hmBrushLiftMotorCurrent) {
+        this.hmBrushLiftMotorCurrent = hmBrushLiftMotorCurrent;
+    }
+
+    public String getHmFilterMotor() {
+        return hmFilterMotor;
+    }
+
+    public void setHmFilterMotor(String hmFilterMotor) {
+        this.hmFilterMotor = hmFilterMotor;
+    }
+
+    public String getHmMcuE37() {
+        return hmMcuE37;
+    }
+
+    public void setHmMcuE37(String hmMcuE37) {
+        this.hmMcuE37 = hmMcuE37;
+    }
+
+    public String getHmMcuE48() {
+        return hmMcuE48;
+    }
+
+    public void setHmMcuE48(String hmMcuE48) {
+        this.hmMcuE48 = hmMcuE48;
+    }
+
+    public String getHmOutletValve() {
+        return hmOutletValve;
+    }
+
+    public void setHmOutletValve(String hmOutletValve) {
+        this.hmOutletValve = hmOutletValve;
+    }
+
+    public String getHmPowerBoardBusVolt() {
+        return hmPowerBoardBusVolt;
+    }
+
+    public void setHmPowerBoardBusVolt(String hmPowerBoardBusVolt) {
+        this.hmPowerBoardBusVolt = hmPowerBoardBusVolt;
+    }
+
+    public String getHmRollingBrushPressureLevel() {
+        return hmRollingBrushPressureLevel;
+    }
+
+    public void setHmRollingBrushPressureLevel(String hmRollingBrushPressureLevel) {
+        this.hmRollingBrushPressureLevel = hmRollingBrushPressureLevel;
+    }
+
+    public String getHmRollingBrushSpinLevel() {
+        return hmRollingBrushSpinLevel;
+    }
+
+    public void setHmRollingBrushSpinLevel(String hmRollingBrushSpinLevel) {
+        this.hmRollingBrushSpinLevel = hmRollingBrushSpinLevel;
+    }
+
+    public String getHmBrushMotorCurrent() {
+        return hmBrushMotorCurrent;
+    }
+
+    public void setHmBrushMotorCurrent(String hmBrushMotorCurrent) {
+        this.hmBrushMotorCurrent = hmBrushMotorCurrent;
+    }
+
+    public String getLldRelay() {
+        return lldRelay;
+    }
+
+    public void setLldRelay(String lldRelay) {
+        this.lldRelay = lldRelay;
+    }
+
     @Override
     public String toString() {
         return "RobotCornerstone{" +
-            "productId='" + productId + '\'' +
-            ", reportTimestampMs='" + reportTimestampMs + '\'' +
-            ", reportTimeUtc=" + reportTimeUtc +
-            ", reportTimeT8=" + reportTimeT8 +
-            ", settingRevisionMark='" + settingRevisionMark + '\'' +
-            ", protocolVersion='" + protocolVersion + '\'' +
-            ", taskSubType='" + taskSubType + '\'' +
-            ", taskId='" + taskId + '\'' +
-            ", taskRevisionMark='" + taskRevisionMark + '\'' +
-            ", collectTimestampMs='" + collectTimestampMs + '\'' +
-            ", collectTimeUtc=" + collectTimeUtc +
-            ", collectTimeT8=" + collectTimeT8 +
-            ", version='" + version + '\'' +
-            ", odomPositionX='" + odomPositionX + '\'' +
-            ", odomPositionY='" + odomPositionY + '\'' +
-            ", odomPositionZ='" + odomPositionZ + '\'' +
-            ", odomOrientationX='" + odomOrientationX + '\'' +
-            ", odomOrientationY='" + odomOrientationY + '\'' +
-            ", odomOrientationZ='" + odomOrientationZ + '\'' +
-            ", odomOrientationW='" + odomOrientationW + '\'' +
-            ", odomV='" + odomV + '\'' +
-            ", odomW='" + odomW + '\'' +
-            ", unbiasedImuPryPitch='" + unbiasedImuPryPitch + '\'' +
-            ", unbiasedImuPryRoll='" + unbiasedImuPryRoll + '\'' +
-            ", timeStartup='" + timeStartup + '\'' +
-            ", timeTaskStart='" + timeTaskStart + '\'' +
-            ", timeCurrent='" + timeCurrent + '\'' +
-            ", wifiIntensityLevel='" + wifiIntensityLevel + '\'' +
-            ", mobileIntensityLevel='" + mobileIntensityLevel + '\'' +
-            ", wifiTraffic='" + wifiTraffic + '\'' +
-            ", mobileTraffic='" + mobileTraffic + '\'' +
-            ", wifiSpeed='" + wifiSpeed + '\'' +
-            ", wifiSpeedRx='" + wifiSpeedRx + '\'' +
-            ", wifiSpeedTx='" + wifiSpeedTx + '\'' +
-            ", mobileSpeed='" + mobileSpeed + '\'' +
-            ", mobileSpeedRx='" + mobileSpeedRx + '\'' +
-            ", mobileSpeedTx='" + mobileSpeedTx + '\'' +
-            ", monthTraffic='" + monthTraffic + '\'' +
-            ", locationStatus='" + locationStatus + '\'' +
-            ", locationMapName='" + locationMapName + '\'' +
-            ", locationMapOriginX='" + locationMapOriginX + '\'' +
-            ", locationMapOriginY='" + locationMapOriginY + '\'' +
-            ", locationMapResolution='" + locationMapResolution + '\'' +
-            ", locationMapGridWidth='" + locationMapGridWidth + '\'' +
-            ", locationMapGridHeight='" + locationMapGridHeight + '\'' +
-            ", locationX='" + locationX + '\'' +
-            ", locationY='" + locationY + '\'' +
-            ", locationYaw='" + locationYaw + '\'' +
-            ", locationX1='" + locationX1 + '\'' +
-            ", locationY1='" + locationY1 + '\'' +
-            ", locationYaw1='" + locationYaw1 + '\'' +
-            ", sleepMode='" + sleepMode + '\'' +
-            ", rebooting='" + rebooting + '\'' +
-            ", manualControlling='" + manualControlling + '\'' +
-            ", rampAssistStatus='" + rampAssistStatus + '\'' +
-            ", otaStatus='" + otaStatus + '\'' +
-            ", autoMode='" + autoMode + '\'' +
-            ", emergencyStop='" + emergencyStop + '\'' +
-            ", manualCharging='" + manualCharging + '\'' +
-            ", manualWorking='" + manualWorking + '\'' +
-            ", wakeupMode='" + wakeupMode + '\'' +
-            ", maintainMode='" + maintainMode + '\'' +
-            ", schedulerPauseFlags='" + schedulerPauseFlags + '\'' +
-            ", schedulerArranger='" + schedulerArranger + '\'' +
-            ", scaningMapStatus='" + scaningMapStatus + '\'' +
-            ", scaningMapName='" + scaningMapName + '\'' +
-            ", recordPathStatus='" + recordPathStatus + '\'' +
-            ", recordPathName='" + recordPathName + '\'' +
-            ", naviStatus='" + naviStatus + '\'' +
-            ", naviInstanceId='" + naviInstanceId + '\'' +
-            ", naviMapName='" + naviMapName + '\'' +
-            ", naviPosName='" + naviPosName + '\'' +
-            ", naviPosType='" + naviPosType + '\'' +
-            ", naviPosFunction='" + naviPosFunction + '\'' +
-            ", taskStatus='" + taskStatus + '\'' +
-            ", taskInstanceId='" + taskInstanceId + '\'' +
-            ", multiTaskName='" + multiTaskName + '\'' +
-            ", multiTaskListCount='" + multiTaskListCount + '\'' +
-            ", multiTaskLoopCount='" + multiTaskLoopCount + '\'' +
-            ", taskQueueName='" + taskQueueName + '\'' +
-            ", taskQueueListCount='" + taskQueueListCount + '\'' +
-            ", taskQueueLoopCount='" + taskQueueLoopCount + '\'' +
-            ", taskQueueMapName='" + taskQueueMapName + '\'' +
-            ", multiTaskListIndex='" + multiTaskListIndex + '\'' +
-            ", multiTaskLoopIndex='" + multiTaskLoopIndex + '\'' +
-            ", taskQueueListIndex='" + taskQueueListIndex + '\'' +
-            ", taskQueueLoopIndex='" + taskQueueLoopIndex + '\'' +
-            ", taskQueueProgress='" + taskQueueProgress + '\'' +
-            ", subTaskProgress='" + subTaskProgress + '\'' +
-            ", subTaskType='" + subTaskType + '\'' +
-            ", taskExpectCleaningType='" + taskExpectCleaningType + '\'' +
-            ", taskCurrentCleaningType='" + taskCurrentCleaningType + '\'' +
-            ", takeElevatorStatus='" + takeElevatorStatus + '\'' +
-            ", takeElevatorFrom='" + takeElevatorFrom + '\'' +
-            ", takeElevatorTo='" + takeElevatorTo + '\'' +
-            ", takeElevatorState='" + takeElevatorState + '\'' +
-            ", stationStatus='" + stationStatus + '\'' +
-            ", stationState='" + stationState + '\'' +
-            ", stationNumInQueue='" + stationNumInQueue + '\'' +
-            ", stationAvailableItems='" + stationAvailableItems + '\'' +
-            ", stationSupplyingItems='" + stationSupplyingItems + '\'' +
-            ", stationFinishedItems='" + stationFinishedItems + '\'' +
-            ", stationPosName='" + stationPosName + '\'' +
-            ", stationPosType='" + stationPosType + '\'' +
-            ", stationPosFunction='" + stationPosFunction + '\'' +
-            ", batteryVoltage='" + batteryVoltage + '\'' +
-            ", chargerVoltage='" + chargerVoltage + '\'' +
-            ", chargerCurrent='" + chargerCurrent + '\'' +
-            ", batteryCurrent='" + batteryCurrent + '\'' +
-            ", battery='" + battery + '\'' +
-            ", wheelDriverData8='" + wheelDriverData8 + '\'' +
-            ", wheelDriverData9='" + wheelDriverData9 + '\'' +
-            ", wheelDriverDataE='" + wheelDriverDataE + '\'' +
-            ", wheelDriverDataF='" + wheelDriverDataF + '\'' +
-            ", wheelDriverData10='" + wheelDriverData10 + '\'' +
-            ", wheelDriverData11='" + wheelDriverData11 + '\'' +
-            ", wheelDriverData12='" + wheelDriverData12 + '\'' +
-            ", wheelDriverData13='" + wheelDriverData13 + '\'' +
-            ", hybridDriverData32='" + hybridDriverData32 + '\'' +
-            ", hybridDriverData33='" + hybridDriverData33 + '\'' +
-            ", hybridDriverData34='" + hybridDriverData34 + '\'' +
-            ", hybridDriverData35='" + hybridDriverData35 + '\'' +
-            ", hybridDriverData36='" + hybridDriverData36 + '\'' +
-            ", hybridDriverData37='" + hybridDriverData37 + '\'' +
-            ", hybridDriverData38='" + hybridDriverData38 + '\'' +
-            ", hybridDriverData39='" + hybridDriverData39 + '\'' +
-            ", rollingBrushMotorWorking='" + rollingBrushMotorWorking + '\'' +
-            ", brushMotorWorking='" + brushMotorWorking + '\'' +
-            ", leftBrushMotorWorking='" + leftBrushMotorWorking + '\'' +
-            ", sprayMotor='" + sprayMotor + '\'' +
-            ", fanLevel='" + fanLevel + '\'' +
-            ", squeegeeDown='" + squeegeeDown + '\'' +
-            ", frontRollingBrushMotorCurrent='" + frontRollingBrushMotorCurrent + '\'' +
-            ", rearRollingBrushMotorCurrent='" + rearRollingBrushMotorCurrent + '\'' +
-            ", rollingBrushMotorFront='" + rollingBrushMotorFront + '\'' +
-            ", rollingBrushMotorAfter='" + rollingBrushMotorAfter + '\'' +
-            ", brushSpinLevel='" + brushSpinLevel + '\'' +
-            ", sideBrushSpinLevel='" + sideBrushSpinLevel + '\'' +
-            ", brushDownPosition='" + brushDownPosition + '\'' +
-            ", waterLevel='" + waterLevel + '\'' +
-            ", leftBrushSpinLevel='" + leftBrushSpinLevel + '\'' +
-            ", filterLevel='" + filterLevel + '\'' +
-            ", sprayDetergent='" + sprayDetergent + '\'' +
-            ", valve='" + valve + '\'' +
-            ", cleanWaterLevel='" + cleanWaterLevel + '\'' +
-            ", sewageLevel='" + sewageLevel + '\'' +
-            ", rollingBrushMotorFrontFeedBack='" + rollingBrushMotorFrontFeedBack + '\'' +
-            ", rollingBrushMotorAfterFeedBack='" + rollingBrushMotorAfterFeedBack + '\'' +
-            ", leftSideBrushCurrentFeedBack='" + leftSideBrushCurrentFeedBack + '\'' +
-            ", rightSideBrushCurrentFeedBack='" + rightSideBrushCurrentFeedBack + '\'' +
-            ", xdsDriverInfo='" + xdsDriverInfo + '\'' +
-            ", brushDownPositionFeedBack='" + brushDownPositionFeedBack + '\'' +
-            ", suctionPressureVoltage='" + suctionPressureVoltage + '\'' +
-            ", leftSideBrushMotorCurrent='" + leftSideBrushMotorCurrent + '\'' +
-            ", rightSideBrushMotorCurrent='" + rightSideBrushMotorCurrent + '\'' +
-            ", sprayMotorCurrent='" + sprayMotorCurrent + '\'' +
-            ", vacuumMotorCurrent='" + vacuumMotorCurrent + '\'' +
-            ", squeegeeLiftMotorCurrent='" + squeegeeLiftMotorCurrent + '\'' +
-            ", filterMotorCurrent='" + filterMotorCurrent + '\'' +
-            ", timeStartupUtc=" + timeStartupUtc +
-            ", timeStartupT8=" + timeStartupT8 +
-            ", timeTaskStartUtc=" + timeTaskStartUtc +
-            ", timeTaskStartT8=" + timeTaskStartT8 +
-            ", timeCurrentUtc=" + timeCurrentUtc +
-            ", timeCurrentT8=" + timeCurrentT8 +
-            ", publishTimestampMs=" + publishTimestampMs +
-            ", publishTimeUtc=" + publishTimeUtc +
-            ", publishTimeT8=" + publishTimeT8 +
-            ", rollingBrushMotorFrontPwmFeedBack='" + rollingBrushMotorFrontPwmFeedBack + '\'' +
-            ", rollingBrushMotorAfterPwmFeedBack='" + rollingBrushMotorAfterPwmFeedBack + '\'' +
-            '}';
+                "productId='" + productId + '\'' +
+                ", reportTimestampMs='" + reportTimestampMs + '\'' +
+                ", reportTimeUtc=" + reportTimeUtc +
+                ", reportTimeT8=" + reportTimeT8 +
+                ", settingRevisionMark='" + settingRevisionMark + '\'' +
+                ", protocolVersion='" + protocolVersion + '\'' +
+                ", taskSubType='" + taskSubType + '\'' +
+                ", taskId='" + taskId + '\'' +
+                ", taskRevisionMark='" + taskRevisionMark + '\'' +
+                ", collectTimestampMs='" + collectTimestampMs + '\'' +
+                ", collectTimeUtc=" + collectTimeUtc +
+                ", collectTimeT8=" + collectTimeT8 +
+                ", version='" + version + '\'' +
+                ", odomPositionX='" + odomPositionX + '\'' +
+                ", odomPositionY='" + odomPositionY + '\'' +
+                ", odomPositionZ='" + odomPositionZ + '\'' +
+                ", odomOrientationX='" + odomOrientationX + '\'' +
+                ", odomOrientationY='" + odomOrientationY + '\'' +
+                ", odomOrientationZ='" + odomOrientationZ + '\'' +
+                ", odomOrientationW='" + odomOrientationW + '\'' +
+                ", odomV='" + odomV + '\'' +
+                ", odomW='" + odomW + '\'' +
+                ", unbiasedImuPryPitch='" + unbiasedImuPryPitch + '\'' +
+                ", unbiasedImuPryRoll='" + unbiasedImuPryRoll + '\'' +
+                ", timeStartup='" + timeStartup + '\'' +
+                ", timeTaskStart='" + timeTaskStart + '\'' +
+                ", timeCurrent='" + timeCurrent + '\'' +
+                ", wifiIntensityLevel='" + wifiIntensityLevel + '\'' +
+                ", mobileIntensityLevel='" + mobileIntensityLevel + '\'' +
+                ", wifiTraffic='" + wifiTraffic + '\'' +
+                ", mobileTraffic='" + mobileTraffic + '\'' +
+                ", wifiSpeed='" + wifiSpeed + '\'' +
+                ", wifiSpeedRx='" + wifiSpeedRx + '\'' +
+                ", wifiSpeedTx='" + wifiSpeedTx + '\'' +
+                ", mobileSpeed='" + mobileSpeed + '\'' +
+                ", mobileSpeedRx='" + mobileSpeedRx + '\'' +
+                ", mobileSpeedTx='" + mobileSpeedTx + '\'' +
+                ", monthTraffic='" + monthTraffic + '\'' +
+                ", locationStatus='" + locationStatus + '\'' +
+                ", locationMapName='" + locationMapName + '\'' +
+                ", locationMapOriginX='" + locationMapOriginX + '\'' +
+                ", locationMapOriginY='" + locationMapOriginY + '\'' +
+                ", locationMapResolution='" + locationMapResolution + '\'' +
+                ", locationMapGridWidth='" + locationMapGridWidth + '\'' +
+                ", locationMapGridHeight='" + locationMapGridHeight + '\'' +
+                ", locationX='" + locationX + '\'' +
+                ", locationY='" + locationY + '\'' +
+                ", locationYaw='" + locationYaw + '\'' +
+                ", locationX1='" + locationX1 + '\'' +
+                ", locationY1='" + locationY1 + '\'' +
+                ", locationYaw1='" + locationYaw1 + '\'' +
+                ", sleepMode='" + sleepMode + '\'' +
+                ", rebooting='" + rebooting + '\'' +
+                ", manualControlling='" + manualControlling + '\'' +
+                ", rampAssistStatus='" + rampAssistStatus + '\'' +
+                ", otaStatus='" + otaStatus + '\'' +
+                ", autoMode='" + autoMode + '\'' +
+                ", emergencyStop='" + emergencyStop + '\'' +
+                ", manualCharging='" + manualCharging + '\'' +
+                ", manualWorking='" + manualWorking + '\'' +
+                ", wakeupMode='" + wakeupMode + '\'' +
+                ", maintainMode='" + maintainMode + '\'' +
+                ", schedulerPauseFlags='" + schedulerPauseFlags + '\'' +
+                ", schedulerArranger='" + schedulerArranger + '\'' +
+                ", scaningMapStatus='" + scaningMapStatus + '\'' +
+                ", scaningMapName='" + scaningMapName + '\'' +
+                ", recordPathStatus='" + recordPathStatus + '\'' +
+                ", recordPathName='" + recordPathName + '\'' +
+                ", naviStatus='" + naviStatus + '\'' +
+                ", naviInstanceId='" + naviInstanceId + '\'' +
+                ", naviMapName='" + naviMapName + '\'' +
+                ", naviPosName='" + naviPosName + '\'' +
+                ", naviPosType='" + naviPosType + '\'' +
+                ", naviPosFunction='" + naviPosFunction + '\'' +
+                ", taskStatus='" + taskStatus + '\'' +
+                ", taskInstanceId='" + taskInstanceId + '\'' +
+                ", multiTaskName='" + multiTaskName + '\'' +
+                ", multiTaskListCount='" + multiTaskListCount + '\'' +
+                ", multiTaskLoopCount='" + multiTaskLoopCount + '\'' +
+                ", taskQueueName='" + taskQueueName + '\'' +
+                ", taskQueueListCount='" + taskQueueListCount + '\'' +
+                ", taskQueueLoopCount='" + taskQueueLoopCount + '\'' +
+                ", taskQueueMapName='" + taskQueueMapName + '\'' +
+                ", multiTaskListIndex='" + multiTaskListIndex + '\'' +
+                ", multiTaskLoopIndex='" + multiTaskLoopIndex + '\'' +
+                ", taskQueueListIndex='" + taskQueueListIndex + '\'' +
+                ", taskQueueLoopIndex='" + taskQueueLoopIndex + '\'' +
+                ", taskQueueProgress='" + taskQueueProgress + '\'' +
+                ", subTaskProgress='" + subTaskProgress + '\'' +
+                ", subTaskType='" + subTaskType + '\'' +
+                ", taskExpectCleaningType='" + taskExpectCleaningType + '\'' +
+                ", taskCurrentCleaningType='" + taskCurrentCleaningType + '\'' +
+                ", takeElevatorStatus='" + takeElevatorStatus + '\'' +
+                ", takeElevatorFrom='" + takeElevatorFrom + '\'' +
+                ", takeElevatorTo='" + takeElevatorTo + '\'' +
+                ", takeElevatorState='" + takeElevatorState + '\'' +
+                ", stationStatus='" + stationStatus + '\'' +
+                ", stationState='" + stationState + '\'' +
+                ", stationNumInQueue='" + stationNumInQueue + '\'' +
+                ", stationAvailableItems='" + stationAvailableItems + '\'' +
+                ", stationSupplyingItems='" + stationSupplyingItems + '\'' +
+                ", stationFinishedItems='" + stationFinishedItems + '\'' +
+                ", stationPosName='" + stationPosName + '\'' +
+                ", stationPosType='" + stationPosType + '\'' +
+                ", stationPosFunction='" + stationPosFunction + '\'' +
+                ", batteryVoltage='" + batteryVoltage + '\'' +
+                ", chargerVoltage='" + chargerVoltage + '\'' +
+                ", chargerCurrent='" + chargerCurrent + '\'' +
+                ", batteryCurrent='" + batteryCurrent + '\'' +
+                ", battery='" + battery + '\'' +
+                ", wheelDriverData8='" + wheelDriverData8 + '\'' +
+                ", wheelDriverData9='" + wheelDriverData9 + '\'' +
+                ", wheelDriverDataE='" + wheelDriverDataE + '\'' +
+                ", wheelDriverDataF='" + wheelDriverDataF + '\'' +
+                ", wheelDriverData10='" + wheelDriverData10 + '\'' +
+                ", wheelDriverData11='" + wheelDriverData11 + '\'' +
+                ", wheelDriverData12='" + wheelDriverData12 + '\'' +
+                ", wheelDriverData13='" + wheelDriverData13 + '\'' +
+                ", hybridDriverData32='" + hybridDriverData32 + '\'' +
+                ", hybridDriverData33='" + hybridDriverData33 + '\'' +
+                ", hybridDriverData34='" + hybridDriverData34 + '\'' +
+                ", hybridDriverData35='" + hybridDriverData35 + '\'' +
+                ", hybridDriverData36='" + hybridDriverData36 + '\'' +
+                ", hybridDriverData37='" + hybridDriverData37 + '\'' +
+                ", hybridDriverData38='" + hybridDriverData38 + '\'' +
+                ", hybridDriverData39='" + hybridDriverData39 + '\'' +
+                ", rollingBrushMotorWorking='" + rollingBrushMotorWorking + '\'' +
+                ", brushMotorWorking='" + brushMotorWorking + '\'' +
+                ", leftBrushMotorWorking='" + leftBrushMotorWorking + '\'' +
+                ", sprayMotor='" + sprayMotor + '\'' +
+                ", fanLevel='" + fanLevel + '\'' +
+                ", squeegeeDown='" + squeegeeDown + '\'' +
+                ", frontRollingBrushMotorCurrent='" + frontRollingBrushMotorCurrent + '\'' +
+                ", rearRollingBrushMotorCurrent='" + rearRollingBrushMotorCurrent + '\'' +
+                ", rollingBrushMotorFront='" + rollingBrushMotorFront + '\'' +
+                ", rollingBrushMotorAfter='" + rollingBrushMotorAfter + '\'' +
+                ", brushSpinLevel='" + brushSpinLevel + '\'' +
+                ", sideBrushSpinLevel='" + sideBrushSpinLevel + '\'' +
+                ", brushDownPosition='" + brushDownPosition + '\'' +
+                ", waterLevel='" + waterLevel + '\'' +
+                ", leftBrushSpinLevel='" + leftBrushSpinLevel + '\'' +
+                ", filterLevel='" + filterLevel + '\'' +
+                ", sprayDetergent='" + sprayDetergent + '\'' +
+                ", valve='" + valve + '\'' +
+                ", cleanWaterLevel='" + cleanWaterLevel + '\'' +
+                ", sewageLevel='" + sewageLevel + '\'' +
+                ", rollingBrushMotorFrontFeedBack='" + rollingBrushMotorFrontFeedBack + '\'' +
+                ", rollingBrushMotorAfterFeedBack='" + rollingBrushMotorAfterFeedBack + '\'' +
+                ", leftSideBrushCurrentFeedBack='" + leftSideBrushCurrentFeedBack + '\'' +
+                ", rightSideBrushCurrentFeedBack='" + rightSideBrushCurrentFeedBack + '\'' +
+                ", xdsDriverInfo='" + xdsDriverInfo + '\'' +
+                ", brushDownPositionFeedBack='" + brushDownPositionFeedBack + '\'' +
+                ", suctionPressureVoltage='" + suctionPressureVoltage + '\'' +
+                ", leftSideBrushMotorCurrent='" + leftSideBrushMotorCurrent + '\'' +
+                ", rightSideBrushMotorCurrent='" + rightSideBrushMotorCurrent + '\'' +
+                ", sprayMotorCurrent='" + sprayMotorCurrent + '\'' +
+                ", vacuumMotorCurrent='" + vacuumMotorCurrent + '\'' +
+                ", squeegeeLiftMotorCurrent='" + squeegeeLiftMotorCurrent + '\'' +
+                ", filterMotorCurrent='" + filterMotorCurrent + '\'' +
+                ", timeStartupUtc=" + timeStartupUtc +
+                ", timeStartupT8=" + timeStartupT8 +
+                ", timeTaskStartUtc=" + timeTaskStartUtc +
+                ", timeTaskStartT8=" + timeTaskStartT8 +
+                ", timeCurrentUtc=" + timeCurrentUtc +
+                ", timeCurrentT8=" + timeCurrentT8 +
+                ", publishTimestampMs=" + publishTimestampMs +
+                ", publishTimeUtc=" + publishTimeUtc +
+                ", publishTimeT8=" + publishTimeT8 +
+                ", rollingBrushMotorFrontPwmFeedBack='" + rollingBrushMotorFrontPwmFeedBack + '\'' +
+                ", rollingBrushMotorAfterPwmFeedBack='" + rollingBrushMotorAfterPwmFeedBack + '\'' +
+                ", battBalanceStatus='" + battBalanceStatus + '\'' +
+                ", battBmsStatus='" + battBmsStatus + '\'' +
+                ", battCycleTimes='" + battCycleTimes + '\'' +
+                ", battFullCap='" + battFullCap + '\'' +
+                ", battHwVer='" + battHwVer + '\'' +
+                ", battMcuE44='" + battMcuE44 + '\'' +
+                ", battProtectorStatus='" + battProtectorStatus + '\'' +
+                ", battRebootTimes='" + battRebootTimes + '\'' +
+                ", battRemainCap='" + battRemainCap + '\'' +
+                ", battSoh='" + battSoh + '\'' +
+                ", battSwVer='" + battSwVer + '\'' +
+                ", battTemp1='" + battTemp1 + '\'' +
+                ", battTemp2='" + battTemp2 + '\'' +
+                ", battTemp3='" + battTemp3 + '\'' +
+                ", battTemp4='" + battTemp4 + '\'' +
+                ", battTemp5='" + battTemp5 + '\'' +
+                ", battTemp6='" + battTemp6 + '\'' +
+                ", battTemp7='" + battTemp7 + '\'' +
+                ", battTotalCap='" + battTotalCap + '\'' +
+                ", battTotalRunTime='" + battTotalRunTime + '\'' +
+                ", battVolt1='" + battVolt1 + '\'' +
+                ", battVolt10='" + battVolt10 + '\'' +
+                ", battVolt11='" + battVolt11 + '\'' +
+                ", battVolt12='" + battVolt12 + '\'' +
+                ", battVolt13='" + battVolt13 + '\'' +
+                ", battVolt14='" + battVolt14 + '\'' +
+                ", battVolt15='" + battVolt15 + '\'' +
+                ", battVolt2='" + battVolt2 + '\'' +
+                ", battVolt3='" + battVolt3 + '\'' +
+                ", battVolt4='" + battVolt4 + '\'' +
+                ", battVolt5='" + battVolt5 + '\'' +
+                ", battVolt6='" + battVolt6 + '\'' +
+                ", battVolt7='" + battVolt7 + '\'' +
+                ", battVolt8='" + battVolt8 + '\'' +
+                ", battVolt9='" + battVolt9 + '\'' +
+                ", wmActualSpeedL='" + wmActualSpeedL + '\'' +
+                ", wmActualSpeedR='" + wmActualSpeedR + '\'' +
+                ", wmBusVolt='" + wmBusVolt + '\'' +
+                ", wmCountsL='" + wmCountsL + '\'' +
+                ", wmCountsR='" + wmCountsR + '\'' +
+                ", wmCurrentL='" + wmCurrentL + '\'' +
+                ", wmCurrentR='" + wmCurrentR + '\'' +
+                ", wmMcuE42='" + wmMcuE42 + '\'' +
+                ", wmMcuE45='" + wmMcuE45 + '\'' +
+                ", wmMcuE46='" + wmMcuE46 + '\'' +
+                ", wmMcuE47='" + wmMcuE47 + '\'' +
+                ", wmRefSpeedL='" + wmRefSpeedL + '\'' +
+                ", wmRefSpeedR='" + wmRefSpeedR + '\'' +
+                ", wmTempL='" + wmTempL + '\'' +
+                ", wmTempR='" + wmTempR + '\'' +
+                ", fmMcuE27='" + fmMcuE27 + '\'' +
+                ", fmVacuumDriverTemp='" + fmVacuumDriverTemp + '\'' +
+                ", fmVacuumSpeed='" + fmVacuumSpeed + '\'' +
+                ", fmVacuumTemp='" + fmVacuumTemp + '\'' +
+                ", fmCurrent='" + fmCurrent + '\'' +
+                ", hmBrushDown='" + hmBrushDown + '\'' +
+                ", hmBrushLiftMotorCurrent='" + hmBrushLiftMotorCurrent + '\'' +
+                ", hmFilterMotor='" + hmFilterMotor + '\'' +
+                ", hmMcuE37='" + hmMcuE37 + '\'' +
+                ", hmMcuE48='" + hmMcuE48 + '\'' +
+                ", hmOutletValve='" + hmOutletValve + '\'' +
+                ", hmPowerBoardBusVolt='" + hmPowerBoardBusVolt + '\'' +
+                ", hmRollingBrushPressureLevel='" + hmRollingBrushPressureLevel + '\'' +
+                ", hmRollingBrushSpinLevel='" + hmRollingBrushSpinLevel + '\'' +
+                ", hmBrushMotorCurrent='" + hmBrushMotorCurrent + '\'' +
+                ", lldRelay='" + lldRelay + '\'' +
+                '}';
     }
 }

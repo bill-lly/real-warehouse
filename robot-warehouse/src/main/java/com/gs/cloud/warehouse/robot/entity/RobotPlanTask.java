@@ -10,14 +10,41 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Date;
 
 public class RobotPlanTask extends FactEntity {
+    private Long id;
     private String productId;
     private String PlanTaskName;
     private String TimeZone;
     private Long planTaskStartTimeMS;
     private Date planTaskStartTimeUTC;
     private Date planTaskStartTimeLocal;
+    private Date cldTimestampUTC;
+    private String taskInfo;
+
+    public String getTaskInfo() {
+        return taskInfo;
+    }
+
+    public void setTaskInfo(String taskInfo) {
+        this.taskInfo = taskInfo;
+    }
+
+    public Date getCldTimestampUTC() {
+        return cldTimestampUTC;
+    }
+
+    public void setCldTimestampUTC(Date cldTimestampUTC) {
+        this.cldTimestampUTC = cldTimestampUTC;
+    }
 
     private Date eventTime;
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
 
     public Date getPlanTaskStartTimeUTC() {
         return planTaskStartTimeUTC;

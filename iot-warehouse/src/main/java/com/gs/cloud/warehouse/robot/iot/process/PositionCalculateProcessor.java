@@ -88,15 +88,15 @@ public class PositionCalculateProcessor extends ProcessWindowFunction<RccPropert
     Date firstCldStartTimeUtc = first.getCldTimestampUtc();
     Date endCldStartTimeUtc = first.getCldTimestampUtc();
     Date firstStartTimeUtc = first.getTimestampUtc();
-    double angleSum = first.getAngle();
+    double angleSum = first.getPosition().getAngle();
     double distance = 0.0;
     while (iterator.hasNext()) {
       Long currKey = iterator.next();
       RccPropertyReport curr = rccMap.get(currKey);
       if (currKey < end) {
-        distance = distance + Math.sqrt(Math.pow(curr.getX() - pre.getX(), 2) + Math.pow(curr.getY() - pre.getY(), 2));
+        distance = distance + Math.sqrt(Math.pow(curr.getPosition().getX() - pre.getPosition().getX(), 2) + Math.pow(curr.getPosition().getY() - pre.getPosition().getY(), 2));
         distance = (double)Math.round(distance * 100) / 100;
-        angleSum = angleSum + curr.getAngle();
+        angleSum = angleSum + curr.getPosition().getAngle();
         firstCldStartTimeUtc = firstCldStartTimeUtc.compareTo(curr.getCldTimestampUtc()) < 0
             ? firstCldStartTimeUtc : curr.getCldTimestampUtc();
         endCldStartTimeUtc = endCldStartTimeUtc.compareTo(curr.getCldTimestampUtc()) < 0
@@ -117,7 +117,7 @@ public class PositionCalculateProcessor extends ProcessWindowFunction<RccPropert
     windowedRccPosition.setStartTimeUtc(firstStartTimeUtc);
     windowedRccPosition.setEndTimeUtc(pre.getTimestampUtc());
     windowedRccPosition.setDistance(distance * 5);
-    double effDis = Math.sqrt(Math.pow(pre.getX() - first.getX(), 2) + Math.pow(pre.getY() - first.getY(), 2));
+    double effDis = Math.sqrt(Math.pow(pre.getPosition().getX() - first.getPosition().getX(), 2) + Math.pow(pre.getPosition().getY() - first.getPosition().getY(), 2));
     windowedRccPosition.setEffectiveDistance(((double)Math.round(effDis * 100) / 100) * 5);
     windowedRccPosition.setAngle((double)Math.round(angleSum * 100) / 100);
     out.collect(windowedRccPosition);

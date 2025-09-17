@@ -9,7 +9,7 @@ import com.gs.cloud.warehouse.robot.entity.RobotStateMapping;
 import com.gs.cloud.warehouse.robot.entity.RobotWorkState;
 import com.gs.cloud.warehouse.robot.lookup.RobotBasicDimLookupFunction;
 import com.gs.cloud.warehouse.robot.process.StateMappingCoGroupProcessor;
-import com.gs.cloud.warehouse.robot.source.KafkaSourceFactory;
+import com.gs.cloud.warehouse.source.KafkaSourceFactory;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.common.state.StateTtlConfig;
 import org.apache.flink.api.common.state.ValueState;

@@ -18,7 +18,7 @@ public class KafkaSourceUtils {
     @SuppressWarnings("rawtypes") KafkaSourceBuilder kafkaSourceBuilder = KafkaSource.<T>builder()
         .setBootstrapServers(properties.getProperty(data.getKafkaServer()))
         .setTopics(properties.getProperty(data.getKafkaTopic()))
-        .setGroupId(properties.getProperty(data.getKafkaTopic()) + "." + jobName + "." + env)
+            .setGroupId(properties.getProperty(data.getKafkaTopic()) + "." + jobName + "." + env)
         .setValueOnlyDeserializer(data.getSerDeserializer());
     KafkaSourceBuilder<T> kafkaSourceBuilderScan = KafkaSourceUtils.scanMode(kafkaSourceBuilder, properties);
     return kafkaSourceBuilderScan.build();

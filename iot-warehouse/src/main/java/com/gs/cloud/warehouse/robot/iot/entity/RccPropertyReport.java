@@ -34,14 +34,14 @@ public class RccPropertyReport extends FactEntity {
   @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
   private Date cldTimestampUtc;
 
-  @JsonProperty("x")
-  private Integer x;
+  @JsonProperty("productKey")
+  private String productKey;
 
-  @JsonProperty("y")
-  private Integer y;
+  private String robotFamilyCode;
 
-  @JsonProperty("angle")
-  private Double angle;
+  private Position position;
+
+  private TaskStatus taskStatus;
 
   private String pt;
 
@@ -59,6 +59,14 @@ public class RccPropertyReport extends FactEntity {
 
   public String getProductId() {
     return productId;
+  }
+
+  public String getProductKey() {
+    return productKey;
+  }
+
+  public void setProductKey(String productKey) {
+    this.productKey = productKey;
   }
 
   public void setProductId(String productId) {
@@ -97,28 +105,21 @@ public class RccPropertyReport extends FactEntity {
     this.cldTimestampUtc = cldTimestampUtc;
   }
 
-  public Integer getX() {
-    return x;
+  public Position getPosition() {
+    return position;
   }
 
-  public void setX(Integer x) {
-    this.x = x;
+
+  public void setPosition(Position position) {
+    this.position = position;
   }
 
-  public Integer getY() {
-    return y;
+  public TaskStatus getTaskStatus() {
+    return taskStatus;
   }
 
-  public void setY(Integer y) {
-    this.y = y;
-  }
-
-  public Double getAngle() {
-    return angle;
-  }
-
-  public void setAngle(Double angle) {
-    this.angle = angle;
+  public void setTaskStatus(TaskStatus taskStatus) {
+    this.taskStatus = taskStatus;
   }
 
   public String getPt() {
@@ -147,20 +148,27 @@ public class RccPropertyReport extends FactEntity {
     this.cldTimestampUtcStr = cldTimestampUtcStr;
   }
 
+  public String getRobotFamilyCode() {return robotFamilyCode;}
+
+  public void setRobotFamilyCode(String robotFamilyCode) {this.robotFamilyCode = robotFamilyCode;}
+
   @Override
   public String toString() {
     return "RccPropertyReport{" +
-        "deviceId='" + deviceId + '\'' +
-        ", productId='" + productId + '\'' +
-        ", unixTimestampUtc=" + unixTimestamp +
-        ", cldUnixTimestampUtc=" + cldUnixTimestamp +
-        ", timestampUtc=" + timestampUtc +
-        ", cldTimestampUtc=" + cldTimestampUtc +
-        ", x=" + x +
-        ", y=" + y +
-        ", angle=" + angle +
-        ", pt='" + pt + '\'' +
-        '}';
+            "deviceId='" + deviceId + '\'' +
+            ", productId='" + productId + '\'' +
+            ", unixTimestamp=" + unixTimestamp +
+            ", cldUnixTimestamp=" + cldUnixTimestamp +
+            ", timestampUtc=" + timestampUtc +
+            ", cldTimestampUtc=" + cldTimestampUtc +
+            ", position=" + position +
+            ", taskStatus=" + taskStatus +
+            ", pt='" + pt + '\'' +
+            ", timestampUtcStr='" + timestampUtcStr + '\'' +
+            ", cldTimestampUtcStr='" + cldTimestampUtcStr + '\'' +
+            ", robotFamilyCode='" + robotFamilyCode + '\'' +
+            ", productKey='" + productKey + '\'' +
+            '}';
   }
 
   @Override
